@@ -1,0 +1,5 @@
+pyplumio==0.6.8
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+PyYAML>=6,<7
+paho-mqtt>=2.1,<3

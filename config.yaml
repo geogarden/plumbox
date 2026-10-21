@@ -1,0 +1,75 @@
+name: "PlumBox"
+version: "2.8.0-gptsol10-v3native10.18"
+slug: plumbox
+description: PlumBox V3 Native z profilem fixed_ecomax860p4 i natywnymi zakładkami systemowymi.
+arch:
+  - aarch64
+  - amd64
+  - armv7
+startup: services
+boot: manual
+init: false
+uart: true
+udev: true
+usb: true
+homeassistant_api: true
+ingress: true
+ingress_port: 8080
+ingress_stream: true
+panel_icon: mdi:fire
+panel_title: PlumBox
+panel_admin: true
+ports:
+  8080/tcp: 8080
+ports_description:
+  8080/tcp: Bezpośredni dostęp do dashboardu poza Ingress; zabezpieczenie sieci zależy od instalacji.
+map:
+  - type: ssl
+  - type: share
+    read_only: false
+options:
+  apply_options_on_start: false
+  connection_type: simulation
+  serial_device: /dev/ttyUSB0
+  baudrate: 115200
+  tcp_host: 192.168.1.50
+  tcp_port: 8899
+  mqtt_enabled: false
+  mqtt_host: core-mosquitto
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  mqtt_base_topic: plumbox
+  mqtt_discovery: true
+  mqtt_commands_enabled: true
+  mqtt_allow_advanced_commands: true
+  mqtt_allow_critical_commands: false
+  mqtt_allow_power_commands: true
+  profile_mode: fixed_ecomax860p4
+  advanced_writes: true
+  initial_pin: "5623"
+  initial_admin_password: "sajmon6974"
+schema:
+  apply_options_on_start: bool
+  connection_type: list(simulation|serial|tcp)
+  serial_device: str
+  baudrate: int
+  tcp_host: str
+  tcp_port: port
+  mqtt_enabled: bool
+  mqtt_host: str
+  mqtt_port: port
+  mqtt_username: str?
+  mqtt_password: password?
+  mqtt_base_topic: str
+  mqtt_discovery: bool
+  mqtt_commands_enabled: bool
+  mqtt_allow_advanced_commands: bool
+  mqtt_allow_critical_commands: bool
+  mqtt_allow_power_commands: bool
+  profile_mode: list(fixed_ecomax860p4|auto_detect)
+  advanced_writes: bool
+  initial_pin: password?
+  initial_admin_password: password?
+backup: hot
+stage: experimental

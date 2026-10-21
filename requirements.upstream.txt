@@ -1,0 +1,4 @@
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+PyYAML==6.0.2
+pyplumio==0.6.8

@@ -1,0 +1,10 @@
+{
+  "version": "2.8.0-gptsol10-v3native10.14",
+  "python_passed": 192,
+  "python_skipped": 0,
+  "javascript_passed": 11,
+  "hardware_tested": false,
+  "real_mobile_push_tested": false,
+  "real_container_tested": false,
+  "shell_syntax_passed": true
+}

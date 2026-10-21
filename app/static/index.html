@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1017">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("plumbox_theme");
+        const theme = ["dark", "light", "oled"].includes(saved) ? saved : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        document.documentElement.dataset.theme = theme;
+        const colors = {dark:"#0b1017",light:"#eef1f6",oled:"#07110f"};
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", colors[theme]);
+      } catch { /* CSS ma bezpieczny fallback dark */ }
+    })();
+  </script>
+  <title>PlumBox</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css?v=gptsol-52">
+  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-52">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <img src="assets/icon.svg" alt="" class="brand-logo">
+        <div>
+          <div class="brand-name">Plum<span>Box</span></div>
+          <div class="brand-model">ecoMAX 860P4-LZ</div>
+        </div>
+      </div>
+
+      <nav class="side-nav" id="sideNav">
+        <div class="nav-group">Kocioł</div>
+        <button class="nav-item active" data-view="overview"><span>◈</span>Podgląd</button>
+        <button class="nav-item" data-view="installation"><span>⌁</span>Schemat instalacji</button>
+        <button class="nav-item" data-view="heating"><span>♨</span>CO i kocioł</button>
+        <button class="nav-item" data-view="water_heater"><span>❋</span>CWU</button>
+        <button class="nav-item" data-view="summer"><span>☀</span>Lato / zima</button>
+        <button class="nav-item" data-view="mixer"><span>❖</span>Mieszacz</button>
+
+        <div class="nav-group">Spalanie</div>
+        <button class="nav-item" data-view="hysteresis"><span>≋</span>H1/H2 i histereza</button>
+        <button class="nav-item" data-view="airflow"><span>≈</span>Korekty nadmuchu</button>
+
+        <div class="nav-group">Serwis</div>
+        <button class="nav-item" data-view="fuel_calibration"><span>⚙</span>Praca</button>
+        <button class="nav-item" data-view="kindling"><span>✦</span>Rozpalanie</button>
+        <button class="nav-item" data-view="supervision"><span>◎</span>Nadzór</button>
+        <button class="nav-item" data-view="burning_off"><span>◑</span>Wygaszanie</button>
+        <button class="nav-item" data-view="cleaning"><span>✧</span>Czyszczenie</button>
+        <button class="nav-item" data-view="protections"><span>▣</span>Zabezpieczenia</button>
+
+        <div class="nav-group">Dane</div>
+        <button class="nav-item" data-view="alarms"><span>△</span>Alarmy</button>
+        <button class="nav-item" data-view="statistics"><span>◷</span>Statystyki cykli</button>
+        <button class="nav-item" data-view="history"><span>◫</span>Historia temperatur</button>
+        <button class="nav-item" data-view="all"><span>≡</span>Pełna lista</button>
+        <button class="nav-item" data-view="system"><span>◉</span>Stan systemu</button>
+        <button class="nav-item" data-view="audit"><span>✎</span>Dziennik zmian</button>
+
+        <div class="nav-group">System</div>
+        <button class="nav-item" data-view="notifications"><span>♧</span>Powiadomienia na telefon</button>
+        <button class="nav-item" data-view="communication"><span>⇄</span>Komunikacja i MQTT</button>
+        <button class="nav-item" data-view="users"><span>♟</span>Użytkownicy</button>
+        <button class="nav-item" data-view="account"><span>⚿</span>Moje konto / hasło</button>
+        <a class="nav-item" href="logout"><span>⏻</span>Wyloguj</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="lockButton" class="lock-button">🔒 Odblokuj sterowanie</button>
+        <div class="sidebar-version">PlumBox v2.8.0 · V3N10.18</div>
+        <div class="sidebar-copy">Lokalny panel ecoMAX · V3 Native</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuButton" class="icon-button mobile-only" aria-label="Otwórz menu">
+            <span class="hamburger-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+          </button>
+          <div id="viewTitle" class="page-title">PODGLĄD KOTŁA</div>
+        </div>
+        <div class="topbar-right">
+          <button type="button" id="topLockButton" class="lock-button top-lock-button" aria-label="Odblokuj sterowanie PIN-em" aria-pressed="false"><svg class="admin-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>PIN</span></button>
+          <div class="theme-switch" role="group" aria-label="Motyw kolorystyczny">
+            <button type="button" data-theme-set="dark">☾<span>Ciemny</span></button>
+            <button type="button" data-theme-set="light">☀<span>Jasny</span></button>
+            <button type="button" data-theme-set="oled">◐<span>OLED</span></button>
+          </div>
+          <div class="clock"><strong id="clockTime">--:--:--</strong><span id="clockDate">--.--.----</span></div>
+          <div id="modelSourceBadge" class="model-source-pill offline" title="Źródło identyfikacji modelu"><strong>MODEL: —</strong></div>
+          <div id="connectionBadge" class="online-pill offline"><i></i><strong>OFFLINE</strong></div>
+        </div>
+      </header>
+
+      <div id="offlineBanner" class="offline-banner hidden">Brak połączenia ze sterownikiem. Wyświetlane są ostatnie odebrane dane.</div>
+      <section id="content" class="content"><div class="loading-card">Ładowanie PlumBox…</div></section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-item active" data-view="overview"><span>◈</span><small>Podgląd</small></button>
+    <button class="mobile-nav-item" data-view="heating"><span>♨</span><small>CO</small></button>
+    <button class="mobile-nav-item" data-view="water_heater"><span>❋</span><small>CWU</small></button>
+    <button class="mobile-nav-item" data-view="alarms"><span>△</span><small>Alarmy</small></button>
+    <button class="mobile-nav-item" data-action="menu"><span>☰</span><small>Menu</small></button>
+  </nav>
+
+  <dialog id="unlockDialog" class="modal">
+    <form method="dialog" id="unlockForm" class="modal-card">
+      <div class="modal-icon">🔐</div>
+      <h2>Odblokuj sterowanie</h2>
+      <p>Panel wymaga zalogowania. Zapis parametrów wymaga dodatkowo PIN-u sterowania.</p>
+      <label>PIN<input id="pinInput" type="password" inputmode="numeric" minlength="4" required></label>
+      <div id="unlockError" class="form-error"></div>
+      <div class="modal-actions"><button type="button" id="unlockCancelButton" class="secondary-button">Anuluj</button><button type="submit" class="primary-button">Odblokuj</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDialog" class="modal">
+    <form method="dialog" id="confirmForm" class="modal-card">
+      <div class="modal-icon warning">⚠</div>
+      <h2 id="confirmTitle">Potwierdź zmianę</h2>
+      <p id="confirmText"></p>
+      <label class="confirm-check"><input id="confirmCheckbox" type="checkbox"><span>Sprawdziłem wartość i świadomie zatwierdzam zapis do sterownika.</span></label>
+      <div class="modal-actions"><button type="button" id="confirmCancelButton" class="secondary-button">Anuluj</button><button id="confirmButton" type="submit" class="danger-button" disabled>Potwierdź</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="sessionExpiredDialog" class="modal" aria-labelledby="sessionExpiredTitle">
+    <div class="modal-card">
+      <div class="modal-icon">🔐</div>
+      <h2 id="sessionExpiredTitle">Zaloguj się ponownie</h2>
+      <p>Sesja PlumBox wygasła lub dodatek został uruchomiony ponownie. Sterowanie jest zablokowane. Po logowaniu odblokuj je PIN-em u góry panelu.</p>
+      <a id="loginAgainLink" class="primary-button" href="login">Przejdź do logowania</a>
+    </div>
+  </dialog>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <script src="assets/boiler_views.js?v=gptsol-52" defer></script>
+  <script src="assets/app.js?v=gptsol-52" defer></script>
+</body>
+</html>

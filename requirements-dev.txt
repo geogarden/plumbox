@@ -1,0 +1,3 @@
+# Zależności do uruchomienia testów smoke (poza tym co w requirements.txt).
+pytest>=8,<9
+httpx>=0.27          # wymagane przez fastapi.testclient

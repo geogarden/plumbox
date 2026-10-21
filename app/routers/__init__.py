@@ -1,0 +1,1 @@
+"""Routery FastAPI PlumBox."""

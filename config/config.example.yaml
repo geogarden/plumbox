@@ -1,0 +1,78 @@
+# PlumBox — konfiguracja przykładowa
+#
+# Pierwsze uruchomienie bez kotła:
+# connection.type: simulation
+#
+# Konwerter RS485 → TCP:
+# connection.type: tcp
+# connection.host: 192.168.1.50
+# connection.port: 8899
+#
+# Adapter USB–RS485:
+# connection.type: serial
+# connection.serial_device: /dev/ttyUSB0
+# connection.baudrate: 115200
+
+connection:
+  type: simulation
+  host: 192.168.1.50
+  port: 8899
+  serial_device: /dev/ttyUSB0
+  baudrate: 115200
+  reconnect_delay_seconds: 5
+  connect_timeout_seconds: 10
+  device_timeout_seconds: 60
+  stale_frame_timeout_seconds: 45
+  cleanup_timeout_seconds: 12
+
+web:
+  host: 0.0.0.0
+  port: 8080
+  title: PlumBox
+  poll_interval_seconds: 1
+
+security:
+  # Instalator zastąpi tę wartość bezpiecznym pin_hash.
+  pin: null
+  pin_hash:
+  session_hours: 12
+  require_pin_for_all_writes: true
+  # false = zapisy advanced/critical dozwolone (decyzja użytkownika 2026-07-17):
+  # wymagają konta admin, PIN-u i potwierdzenia; wartości idą do PyPlumIO
+  # natywnie, zakresy waliduje biblioteka i sterownik. true = tylko risk=safe.
+  safe_writes_only: false
+
+history:
+  enabled: true
+  database_path: /var/lib/plumbox/plumbox.db
+  sample_interval_seconds: 30
+  retention_days: 365
+
+
+profile:
+  # fixed_ecomax860p4 = znany profil pod Twoją diagnostykę ecoMAX 860P4.
+  # auto_detect = PlumBox tworzy encje tylko z pól faktycznie zwróconych przez sterownik.
+  mode: fixed_ecomax860p4
+  discovery_mode: profile_entities
+  include_parameters: true
+  include_mixers: true
+  include_statistics: false
+
+mqtt:
+  enabled: false
+  host: 127.0.0.1
+  port: 1883
+  username: ""
+  password: ""
+  base_topic: plumbox
+  home_assistant_discovery: true
+  # V3N7: sensory + number/select/switch dla parametrów zapisywalnych.
+  commands_enabled: true
+  # Większość ustawień serwisowych ecoMAX ma risk=advanced.
+  allow_advanced_commands: true
+  # Krytyczne zabezpieczenia oraz zasilanie kotła wymagają osobnej zgody.
+  allow_critical_commands: false
+  allow_power_commands: true
+
+timezone: Europe/Warsaw
+log_level: INFO

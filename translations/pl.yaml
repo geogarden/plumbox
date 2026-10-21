@@ -1,0 +1,42 @@
+configuration:
+  apply_options_on_start:
+    name: Nadpisz konfigurację przy starcie
+    description: Gdy włączone, opcje z dodatku nadpiszą /data/config.yaml przy każdym starcie. Domyślnie wyłączone, bo ustawienia można zmieniać z panelu PlumBox.
+  connection_type:
+    name: Tryb połączenia
+    description: Symulacja, USB-RS485 albo RS485 przez TCP.
+  serial_device:
+    name: Port USB/TTY
+    description: Port adaptera RS485, np. /dev/ttyUSB0 albo /dev/ttyACM0.
+  baudrate:
+    name: Prędkość RS485
+    description: Prędkość transmisji do ecoMAX.
+  tcp_host:
+    name: Host TCP
+    description: Adres IP konwertera RS485-TCP/Wi-Fi/Ethernet.
+  tcp_port:
+    name: Port TCP
+    description: Port konwertera RS485-TCP.
+  mqtt_enabled:
+    name: MQTT włączone
+    description: Publikuj pełny snapshot PlumBox do MQTT.
+  mqtt_host:
+    name: Host MQTT
+    description: Dla Mosquitto Add-on zwykle core-mosquitto.
+  mqtt_port:
+    name: Port MQTT
+  mqtt_username:
+    name: Login MQTT
+  mqtt_password:
+    name: Hasło MQTT
+  mqtt_base_topic:
+    name: Temat bazowy MQTT
+  mqtt_discovery:
+    name: Home Assistant Discovery
+  initial_pin:
+    name: Początkowy PIN sterowania
+  initial_admin_password:
+    name: Początkowe hasło admina
+    description: Gdy puste, hasło zostanie wygenerowane i zapisane w /data/initial_admin_password.txt.
+network:
+  8080/tcp: Port panelu PlumBox poza Ingress.

@@ -1,0 +1,17 @@
+PlumBox dashboard — bieżący stan źródła
+=========================================
+
+Historyczną bazą wyglądu był dashboard USERBASE v10 z paczki użytkownika.
+Pliki app/static nie są już kopią 1:1. Zostały świadomie zmienione w GPT SOL 1,
+między innymi dla obsługi Ingress, czytelności, bezpieczeństwa i usunięcia danych
+zastępczych udających pomiary.
+
+Aktualne źródło prawdy:
+- app/static/index.html
+- app/static/styles.css
+- app/static/app.js
+- app/static/manifest.webmanifest
+- app/static/service-worker.js
+
+Podgląd PODGLAD_DASHBOARDU_GPTSOL1.html jest samodzielną symulacją UI. Nie jest
+dowodem odczytu z kotła. Sumy SHA-256 gotowych paczek są w wydania/SHA256SUMS.txt.

@@ -1,0 +1,9 @@
+Dokument historyczny
+====================
+
+Pierwotny dashboard pochodził z pliku użytkownika
+PlumBox_FULL_v10_FINAL_OrangePi_Debian(1).zip.
+
+Od wersji GPT SOL 1 frontend został zmieniony i nie jest zgodny 1:1 z tym ZIP-em.
+Nie używać dawnych sum plików do weryfikacji bieżącego wydania. Obowiązujące sumy
+paczek znajdują się w wydania/SHA256SUMS.txt.
