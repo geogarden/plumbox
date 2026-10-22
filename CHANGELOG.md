@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.23
+
+- zdjęcie kotła zastąpiono plikiem sf11130.jpg dostarczonym przez użytkownika,
+- dopasowano kadr do przyłączy oraz dolnej krawędzi kolumny odczytów.
+
 ## 2.8.0-gptsol10-v3native10.22
 
 - dolna krawędź kolumny odczytów jest wyrównana z dołem kotła,

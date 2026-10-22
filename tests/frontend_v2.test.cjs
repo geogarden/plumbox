@@ -151,7 +151,7 @@ test('photo readouts update from snapshot and preserve missing sensor values', (
   p.state.snapshot={connected:true,values:{state_label:'Rozpalanie',heating_temp:67,heating_target:70,feeder_temp:29,feeder:true,lighter:true}};
   let html=p.installationSchemeHtml();
   assert.match(html, /burner-igniting/);
-  assert.match(html, /lazar-smartfire-11-130.png/);
+  assert.match(html, /sf11130.jpg/);
   assert.match(html, /<b>67<small>°C<\/small><\/b>/);
   assert.match(html, /Temp. podajnika/);
   assert.match(html, /Podawanie pelletu/);

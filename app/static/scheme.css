@@ -121,14 +121,14 @@
 }
 .scheme-boiler-image {
   position: absolute;
-  left: -80px;
-  top: -56px;
+  left: -76px;
+  top: -48px;
   width: 500px;
-  height: 520px;
+  height: 500px;
   max-width: none;
   pointer-events: none;
   mix-blend-mode: multiply;
-  clip-path: inset(10% 30% 9% 34%);
+  clip-path: inset(4% 36% 9% 32%);
 }
 /* A flow layout keeps readouts together when text wraps or fonts are enlarged. */
 .scheme-boiler-data {
