@@ -758,6 +758,7 @@
             <small class="scheme-boiler-model">LAZAR · SmartFire 11/130</small>
           </div>
 
+          <div class="scheme-hydraulics">
           <div class="scheme-port scheme-port-co-supply"><i></i><span>ZASILANIE CO</span></div>
           <div class="scheme-port scheme-port-co-return"><i></i><span>POWRÓT CO</span></div>
           <div class="scheme-cwu-label scheme-cwu-label-supply">ZASILANIE CWU</div>
@@ -794,6 +795,7 @@
           </div>
           <div class="scheme-temp scheme-temp-cwu"><b>${escapeHtml(fmt(cwuTemp))}°C</b><span>zadana ${escapeHtml(fmt(cwuTarget))}°C</span></div>
 
+          </div>
           <div class="scheme-flow-note"><i></i><span>${escapeHtml(flowText)}</span></div>
         </div>
       </div>
@@ -804,7 +806,7 @@
     const canvas = content.querySelector(".scheme-canvas");
     const plant = canvas?.querySelector(".scheme-plant");
     if (!canvas || !plant) return;
-    const scale = Math.min(1, Math.max(.2, canvas.clientWidth / 1240));
+    const scale = Math.min(1, Math.max(.2, canvas.clientWidth / 1360));
     plant.style.setProperty("--scheme-scale", scale.toFixed(4));
     const height = `${Math.ceil(610 * scale)}px`;
     if (canvas.style.height !== height) canvas.style.height = height;

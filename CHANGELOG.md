@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.20
+
+- stan pracy, temperatura kotła, wskazanie palnika i temperatura podajnika są w osobnej kolumnie po lewej stronie zdjęcia,
+- animacja palnika jest przeniesiona do kolumny odczytów, a zdjęcie kotła pozostaje odsłonięte,
+- schemat hydrauliczny ma dodatkowe miejsce na odczyty i nadal skaluje się do szerokości ekranu.
+
 ## 2.8.0-gptsol10-v3native10.19
 
 - schemat instalacji pokazuje zdjęcie HKS Lazar SmartFire SF 11/130 zamiast rysunku kotła,

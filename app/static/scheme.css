@@ -76,9 +76,9 @@
   position: absolute;
   left: 50%;
   top: 0;
-  width: 1240px;
+  width: 1360px;
   height: 610px;
-  margin-left: -620px;
+  margin-left: -680px;
   overflow: hidden;
   color: #4a4e53;
   background:
@@ -114,7 +114,7 @@
 
 .scheme-chimney {
   position: absolute;
-  left: 130px;
+  left: 250px;
   top: 45px;
   width: 105px;
   height: 230px;
@@ -141,7 +141,7 @@
 
 .scheme-boiler {
   position: absolute;
-  left: 50px;
+  left: 170px;
   bottom: 54px;
   width: 240px;
   height: 400px;
@@ -159,7 +159,7 @@
 }
 .scheme-controller {
   position: absolute;
-  left: 75px;
+  left: -154px;
   top: 37px;
   z-index: 4;
   display: flex;
@@ -186,7 +186,7 @@
 .scheme-boiler-readout {
   position: absolute;
   z-index: 4;
-  left: 75px;
+  left: -154px;
   top: 103px;
   width: 158px;
   padding: 10px 12px;
@@ -201,7 +201,7 @@
 .scheme-boiler-readout > span { display: block; color: #566977; font-size: 10px; font-weight: 750; }
 .scheme-burner-window {
   position: absolute;
-  left: 89px;
+  left: -106px;
   top: 216px;
   z-index: 4;
   width: 62px;
@@ -233,10 +233,10 @@
 .burner-extinguishing .scheme-chimney i { animation-play-state: running; }
 .scheme-burner-readout {
   position: absolute;
-  left: 48px;
+  left: -154px;
   top: 303px;
   z-index: 4;
-  width: 184px;
+  width: 158px;
   padding: 8px 10px;
   border: 1px solid #d5dee3;
   border-radius: 10px;
@@ -265,6 +265,10 @@
 @keyframes scheme-ignition-pulse { 50% { opacity: .4; } }
 @keyframes scheme-flame-start { from { transform: scale(.75,.65) rotate(-8deg); } to { transform: scale(.95,1) rotate(7deg); } }
 @keyframes scheme-flame-burn { from { transform: scale(.9,1) rotate(-5deg); } to { transform: scale(1.08,.86) rotate(6deg); } }
+
+.scheme-hydraulics { position: absolute; left: 120px; top: 0; width: 1240px; height: 610px; }
+
+.scheme-boiler > .scheme-boiler-model { right: 60px; }
 
 .scheme-port { position: absolute; left: 288px; z-index: 8; }
 .scheme-port i {
