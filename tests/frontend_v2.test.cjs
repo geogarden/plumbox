@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite};';
+  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -131,4 +131,33 @@ test('cycle view clearly identifies incomplete data',async()=>{
 test('notification view shows selected phone and disabled custom threshold',async()=>{
   const views=cycleViews();const html=await views.notifications({api:async()=>({settings:{enabled:false,target:'mobile_app_iphone',start:true,extinguishing:true,finished:true,alarms:true,temperature_threshold:null,threshold_hold_seconds:10,temperature_hysteresis:3},targets:['mobile_app_iphone'],available:true,recent:[]}),escapeHtml:String,formatDate:String});
   assert.match(html,/value="mobile_app_iphone" checked/);assert.match(html,/Puste = bez własnego progu/);assert.match(html,/Wyślij test na wybrane telefony/);
+});
+
+
+test('boiler photo animation follows controller phase and stops when disconnected', () => {
+  const p=panel(async()=>json({}));
+  assert.equal(p.schemeBurnerState('Rozpalanie', false, true).phase, 'igniting');
+  assert.equal(p.schemeBurnerState('Praca', false, true).phase, 'burning');
+  assert.equal(p.schemeBurnerState('Nadzór', false, true).phase, 'burning');
+  assert.equal(p.schemeBurnerState('Wygaszanie', false, true).phase, 'extinguishing');
+  assert.equal(p.schemeBurnerState('Postój', false, true).phase, 'idle');
+  assert.equal(p.schemeBurnerState('Nieznany', null, true).phase, 'idle');
+  assert.equal(p.schemeBurnerState('Praca', true, false).phase, 'offline');
+  assert.equal(p.schemeBurnerState('Nieznany', true, true).phase, 'igniting');
+});
+
+test('photo readouts update from snapshot and preserve missing sensor values', () => {
+  const p=panel(async()=>json({}));
+  p.state.snapshot={connected:true,values:{state_label:'Rozpalanie',heating_temp:67,heating_target:70,feeder_temp:29,feeder:true,lighter:true}};
+  let html=p.installationSchemeHtml();
+  assert.match(html, /burner-igniting/);
+  assert.match(html, /lazar-smartfire-11-130.png/);
+  assert.match(html, /<b>67<small>°C<\/small><\/b>/);
+  assert.match(html, /Temp. podajnika/);
+  assert.match(html, /Podawanie pelletu/);
+  p.state.snapshot={connected:true,values:{state_label:'Postój'}};
+  html=p.installationSchemeHtml();
+  assert.match(html, /burner-idle/);
+  assert.match(html, /Podawanie: brak odczytu/);
+  assert.doesNotMatch(html, /67|29/);
 });

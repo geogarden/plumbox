@@ -10,8 +10,8 @@ def test_installation_scheme_is_registered_as_a_native_view():
 
     assert 'data-view="installation"' in index
     assert "Schemat instalacji" in index
-    assert 'scheme.css?v=gptsol-44' in index
-    assert 'app.js?v=gptsol-44' in index
+    assert 'scheme.css?v=gptsol-53' in index
+    assert 'app.js?v=gptsol-53' in index
     assert 'installation: "SCHEMAT INSTALACJI"' in script
     assert "installationSchemeHtml" in script
     assert "UKŁAD DEKLAROWANY" in script
@@ -32,7 +32,7 @@ def test_scheme_uses_controller_snapshot_instead_of_demo_modes():
         assert controller_value in script
 
     assert 'const feederTemp = finiteNumber(val("feeder_temp", null));' in script
-    assert 'PALNIK <strong>${escapeHtml(fmt(feederTemp))}°C</strong>' in script
+    assert 'Temp. podajnika <b>${escapeHtml(fmt(feederTemp))}°C</b>' in script
     assert 'PODAJNIK <strong>${escapeHtml(fmt(feederTemp))}°C</strong>' not in script
     assert '<b>MIX</b>' in script
     assert '<b>×</b>' not in script

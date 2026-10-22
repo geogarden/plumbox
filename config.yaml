@@ -1,5 +1,5 @@
 name: "PlumBox"
-version: "2.8.0-gptsol10-v3native10.18"
+version: "2.8.0-gptsol10-v3native10.19"
 slug: plumbox
 description: PlumBox V3 Native z profilem fixed_ecomax860p4 i natywnymi zakładkami systemowymi.
 arch:
@@ -47,8 +47,8 @@ options:
   mqtt_allow_power_commands: true
   profile_mode: fixed_ecomax860p4
   advanced_writes: true
-  initial_pin: "5623"
-  initial_admin_password: "sajmon6974"
+  initial_pin: ""
+  initial_admin_password: ""
 schema:
   apply_options_on_start: bool
   connection_type: list(simulation|serial|tcp)

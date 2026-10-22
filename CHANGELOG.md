@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.19
+
+- schemat instalacji pokazuje zdjęcie HKS Lazar SmartFire SF 11/130 zamiast rysunku kotła,
+- temperatura kotła, temperatura podajnika i stan palnika mają odczyty dopasowane do zdjęcia,
+- rozpalanie, praca i wygaszanie mają osobne animacje wynikające z odczytanego stanu sterownika; brak łączności zatrzymuje animację płomienia,
+- zdjęcie jest dołączone lokalnie i dostępne w pamięci podręcznej panelu,
+- domyślna konfiguracja dodatku korzysta z istniejącego generowania PIN-u i hasła zamiast wpisanych jawnie danych początkowych.
+
 ## 2.8.0-gptsol10-v3native10.8
 
 - wykres temperatur na stronie głównej dostaje bieżące próbki ze snapshotów WebSocket i nie czeka na zapis historii w SQLite,

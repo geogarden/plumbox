@@ -667,6 +667,15 @@
     return value === null ? " unknown" : "";
   }
 
+  function schemeBurnerState(mode, lighter, connected) {
+    if (!connected) return { phase: "offline", label: "Brak łączności" };
+    const phase = String(mode).trim().toLocaleLowerCase("pl");
+    if (lighter === true || phase === "rozpalanie") return { phase: "igniting", label: "Rozpalanie" };
+    if (["praca", "nadzór"].includes(phase)) return { phase: "burning", label: String(mode) };
+    if (phase === "wygaszanie") return { phase: "extinguishing", label: "Wygaszanie" };
+    return { phase: "idle", label: String(mode || "Brak odczytu") };
+  }
+
   function installationSchemeHtml() {
     const mixer = state.snapshot?.mixers?.["0"]?.values || {};
     const mode = String(val("state_label", "Nieznany"));
@@ -688,6 +697,8 @@
     const cwuPump = booleanValue(val("water_heater_pump", null));
     const coPump = booleanValue(mixer.pump ?? null);
     const feeder = booleanValue(val("feeder", null));
+    const lighter = booleanValue(val("lighter", null));
+    const burner = schemeBurnerState(mode, lighter, Boolean(state.snapshot?.connected));
     const thermostat = booleanValue(firstSnapshotValue(["thermostat", "thermostat_state", "room_thermostat"]));
     const activeFlows = [
       coPump === true ? "CO" : null,
@@ -697,6 +708,7 @@
     const unknownPumps = [boilerPump, cwuPump, coPump].some((value) => value === null);
     const classes = [
       "installation-scheme",
+      `burner-${burner.phase}`,
       coPump === true ? "co-active" : "",
       cwuPump === true ? "cwu-active" : "",
       boilerPump === true ? "boiler-active" : "",
@@ -737,13 +749,14 @@
           <div class="scheme-thermostat"><span>TERMOSTAT</span><b>${escapeHtml(thermostatText)}</b></div>
 
           <div class="scheme-chimney"><span></span><i></i><i></i><i></i></div>
-          <div class="scheme-boiler">
-            <div class="scheme-controller"><i>●</i><span>${escapeHtml(mode).toUpperCase()}</span></div>
-            <div class="scheme-boiler-readout"><b>${escapeHtml(fmt(heating))}°C</b><span>zadana ${escapeHtml(fmt(heatingTarget))}°C</span></div>
-            <div class="scheme-door"></div>
-            <small>KOCIOŁ ecoMAX</small>
+          <div class="scheme-boiler scheme-boiler-photo">
+            <img class="scheme-boiler-image" src="assets/lazar-smartfire-11-130.png" width="500" height="520" alt="Kocioł na pellet HKS Lazar SmartFire SF 11/130" decoding="async">
+            <div class="scheme-controller" role="status"><i aria-hidden="true"></i><span>${escapeHtml(burner.label).toUpperCase()}</span></div>
+            <div class="scheme-boiler-readout"><span>TEMPERATURA KOTŁA</span><b>${escapeHtml(fmt(heating))}<small>°C</small></b><span>zadana ${escapeHtml(fmt(heatingTarget))}°C</span></div>
+            <div class="scheme-burner-window" title="Symboliczny stan palnika według danych sterownika" aria-hidden="true"><i class="scheme-flame"></i><i class="scheme-ember"></i></div>
+            <div class="scheme-burner-readout"><span>PALNIK</span><strong>${escapeHtml(burner.label)}</strong><small>Temp. podajnika <b>${escapeHtml(fmt(feederTemp))}°C</b></small><span class="scheme-feed-status${feeder === true ? " active" : ""}"><i aria-hidden="true"></i>${feeder === null ? "Podawanie: brak odczytu" : feeder ? "Podawanie pelletu" : "Podajnik zatrzymany"}</span></div>
+            <small class="scheme-boiler-model">LAZAR · SmartFire 11/130</small>
           </div>
-          <div class="scheme-feeder"><b>●</b><span></span><em></em><small>PALNIK <strong>${escapeHtml(fmt(feederTemp))}°C</strong></small></div>
 
           <div class="scheme-port scheme-port-co-supply"><i></i><span>ZASILANIE CO</span></div>
           <div class="scheme-port scheme-port-co-return"><i></i><span>POWRÓT CO</span></div>
