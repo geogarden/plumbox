@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.22
+
+- dolna krawędź kolumny odczytów jest wyrównana z dołem kotła,
+- zdjęcie kotła jest przesunięte do króćców zasilania i powrotu,
+- usunięto odcinki rur po lewej stronie kółek przyłączeniowych.
+
 ## 2.8.0-gptsol10-v3native10.21
 
 - usunięto komin oraz podpis modelu pod zdjęciem kotła,

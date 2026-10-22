@@ -121,7 +121,7 @@
 }
 .scheme-boiler-image {
   position: absolute;
-  left: -150px;
+  left: -80px;
   top: -56px;
   width: 500px;
   height: 520px;
@@ -134,7 +134,7 @@
 .scheme-boiler-data {
   position: absolute;
   left: -154px;
-  top: -48px;
+  bottom: 0;
   width: 158px;
   display: flex;
   flex-direction: column;
@@ -301,12 +301,12 @@
 .scheme-pipe.vertical.blue > i::after,
 .scheme-pipe.vertical.orange > i::after { animation-name: scheme-flow-down; }
 
-.scheme-boiler-feed { left: 218px; top: 311px; width: 507px; }
+.scheme-boiler-feed { left: 298px; top: 311px; width: 427px; }
 .scheme-co-supply-h { left: 725px; top: 311px; width: 115px; }
 .scheme-co-supply-v { left: 833px; top: 145px; height: 173px; }
 .scheme-co-return-v { left: 875px; top: 145px; height: 315px; }
 .scheme-co-return-h { left: 520px; top: 453px; width: 362px; }
-.scheme-protect-return { left: 218px; top: 453px; width: 307px; }
+.scheme-protect-return { left: 298px; top: 453px; width: 227px; }
 .scheme-atv-branch { left: 560px; top: 311px; height: 115px; }
 .scheme-cwu-feed { left: 725px; top: 311px; width: 62px; }
 .scheme-cwu-feed-v { left: 780px; top: 311px; height: 197px; }
