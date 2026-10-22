@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.21
+
+- usunięto komin oraz podpis modelu pod zdjęciem kotła,
+- odczyty po lewej są podniesione i układane w kolumnie bez stałych odstępów pionowych, aby dolny kafelek nie był ucinany przy zawijaniu tekstu.
+
 ## 2.8.0-gptsol10-v3native10.20
 
 - stan pracy, temperatura kotła, wskazanie palnika i temperatura podajnika są w osobnej kolumnie po lewej stronie zdjęcia,

@@ -748,14 +748,14 @@
           <div class="scheme-weather">ZEWN. <b>${escapeHtml(fmt(outsideTemp))}°C</b></div>
           <div class="scheme-thermostat"><span>TERMOSTAT</span><b>${escapeHtml(thermostatText)}</b></div>
 
-          <div class="scheme-chimney"><span></span><i></i><i></i><i></i></div>
           <div class="scheme-boiler scheme-boiler-photo">
             <img class="scheme-boiler-image" src="assets/lazar-smartfire-11-130.png" width="500" height="520" alt="Kocioł na pellet HKS Lazar SmartFire SF 11/130" decoding="async">
+            <div class="scheme-boiler-data">
             <div class="scheme-controller" role="status"><i aria-hidden="true"></i><span>${escapeHtml(burner.label).toUpperCase()}</span></div>
             <div class="scheme-boiler-readout"><span>TEMPERATURA KOTŁA</span><b>${escapeHtml(fmt(heating))}<small>°C</small></b><span>zadana ${escapeHtml(fmt(heatingTarget))}°C</span></div>
             <div class="scheme-burner-window" title="Symboliczny stan palnika według danych sterownika" aria-hidden="true"><i class="scheme-flame"></i><i class="scheme-ember"></i></div>
             <div class="scheme-burner-readout"><span>PALNIK</span><strong>${escapeHtml(burner.label)}</strong><small>Temp. podajnika <b>${escapeHtml(fmt(feederTemp))}°C</b></small><span class="scheme-feed-status${feeder === true ? " active" : ""}"><i aria-hidden="true"></i>${feeder === null ? "Podawanie: brak odczytu" : feeder ? "Podawanie pelletu" : "Podajnik zatrzymany"}</span></div>
-            <small class="scheme-boiler-model">LAZAR · SmartFire 11/130</small>
+            </div>
           </div>
 
           <div class="scheme-hydraulics">

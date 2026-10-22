@@ -112,33 +112,6 @@
 .scheme-thermostat b { display: block; }
 .scheme-thermostat b { margin-top: 3px; color: #5d5f82; font-size: 13px; }
 
-.scheme-chimney {
-  position: absolute;
-  left: 250px;
-  top: 45px;
-  width: 105px;
-  height: 230px;
-}
-.scheme-chimney span {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, #b9bfc0, #e7e9e9 47%, #abb1b2);
-  clip-path: polygon(40% 0,60% 0,60% 37%,82% 48%,60% 48%,60% 100%,40% 100%,40% 48%,18% 37%,40% 37%);
-}
-.scheme-chimney i {
-  position: absolute;
-  top: -12px;
-  left: 38px;
-  width: 7px;
-  height: 28px;
-  border-left: 2px solid #aab0b1;
-  border-radius: 50%;
-  opacity: .2;
-  animation: scheme-smoke 2.6s infinite paused;
-}
-.scheme-chimney i:nth-child(2) { left: 54px; animation-delay: .8s; }
-.scheme-chimney i:nth-child(3) { left: 70px; animation-delay: 1.5s; }
-
 .scheme-boiler {
   position: absolute;
   left: 170px;
@@ -157,10 +130,21 @@
   mix-blend-mode: multiply;
   clip-path: inset(10% 30% 9% 34%);
 }
-.scheme-controller {
+/* A flow layout keeps readouts together when text wraps or fonts are enlarged. */
+.scheme-boiler-data {
   position: absolute;
   left: -154px;
-  top: 37px;
+  top: -48px;
+  width: 158px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  z-index: 4;
+}
+.scheme-boiler-data > * { flex-shrink: 0; }
+.scheme-controller {
+  position: relative;
   z-index: 4;
   display: flex;
   align-items: center;
@@ -184,10 +168,8 @@
 .burner-burning .scheme-controller > i { background: #46e4a0; }
 .burner-extinguishing .scheme-controller > i { background: #ff995d; }
 .scheme-boiler-readout {
-  position: absolute;
+  position: relative;
   z-index: 4;
-  left: -154px;
-  top: 103px;
   width: 158px;
   padding: 10px 12px;
   border: 1px solid #d5dee3;
@@ -200,10 +182,10 @@
 .scheme-boiler-readout > b small { margin-left: 3px; font-size: 15px; }
 .scheme-boiler-readout > span { display: block; color: #566977; font-size: 10px; font-weight: 750; }
 .scheme-burner-window {
-  position: absolute;
-  left: -106px;
-  top: 216px;
+  position: relative;
   z-index: 4;
+  align-self: center;
+  flex: 0 0 62px;
   width: 62px;
   height: 62px;
   overflow: hidden;
@@ -228,13 +210,8 @@
 .burner-igniting .scheme-flame { opacity: 1; height: 23px; animation: scheme-flame-start 1.2s ease-in-out infinite alternate; }
 .burner-burning .scheme-flame { opacity: 1; animation: scheme-flame-burn .7s ease-in-out infinite alternate; }
 .burner-extinguishing .scheme-ember { opacity: .7; animation: scheme-ignition-pulse 2.5s ease-in-out infinite; }
-.burner-igniting .scheme-chimney i,
-.burner-burning .scheme-chimney i,
-.burner-extinguishing .scheme-chimney i { animation-play-state: running; }
 .scheme-burner-readout {
-  position: absolute;
-  left: -154px;
-  top: 303px;
+  position: relative;
   z-index: 4;
   width: 158px;
   padding: 8px 10px;
@@ -251,7 +228,6 @@
 .scheme-feed-status { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 6px; color: #64737d; font-size: 9px; }
 .scheme-feed-status i { width: 5px; height: 5px; border-radius: 50%; background: #9faab0; }
 .scheme-feed-status.active i { background: #20b57a; animation: scheme-ignition-pulse 1s ease-in-out infinite; }
-.scheme-boiler > .scheme-boiler-model,
 .scheme-tank > small {
   position: absolute;
   left: 0;
@@ -268,7 +244,6 @@
 
 .scheme-hydraulics { position: absolute; left: 120px; top: 0; width: 1240px; height: 610px; }
 
-.scheme-boiler > .scheme-boiler-model { right: 60px; }
 
 .scheme-port { position: absolute; left: 288px; z-index: 8; }
 .scheme-port i {
@@ -621,11 +596,6 @@
 @keyframes scheme-flow-down { to { background-position: 0 34px; } }
 @keyframes scheme-spin { to { transform: rotate(360deg); } }
 @keyframes scheme-auger { to { background-position: 28px 0; } }
-@keyframes scheme-smoke {
-  0% { transform: translateY(0) scale(.7); opacity: 0; }
-  35% { opacity: .7; }
-  100% { transform: translate(8px,-30px) scale(1.4); opacity: 0; }
-}
 @keyframes scheme-drip {
   0% { transform: translateY(0); opacity: 0; }
   40% { opacity: 1; }
