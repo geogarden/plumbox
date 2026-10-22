@@ -890,7 +890,7 @@
         </div>
 
         <div class="bottom-row bottom-row-full">
-          <article class="card history-card"><div class="panel-title">HISTORIA TEMPERATUR</div>${chartLegendHtml(overviewChartSeries())}<div class="history-wrap"><canvas id="overviewHistoryCanvas"></canvas></div></article>
+          <article class="card history-card"><div class="panel-title">HISTORIA TEMPERATUR · OSTATNIE 6 GODZIN</div>${chartLegendHtml(overviewChartSeries())}<div class="history-wrap"><canvas id="overviewHistoryCanvas"></canvas></div></article>
         </div>
       </div>
 
@@ -1178,7 +1178,7 @@
     }
     state.overviewExtrasLoading = true;
     const [history, alarms, summary] = await Promise.all([
-      api("/api/history?hours=24&limit=400").catch(() => ({ rows: [] })),
+      api("/api/history?hours=6&limit=400").catch(() => ({ rows: [] })),
       api("/api/alarms?limit=5").catch(() => ({ rows: [] })),
       api("/api/summary").catch(() => ({ fuel_today_kg: null })),
     ]);

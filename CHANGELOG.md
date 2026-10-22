@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.24
+
+- wykres historii temperatur na ekranie głównym pokazuje ostatnie 6 godzin zamiast 24 godzin,
+- nagłówek wykresu informuje o wyświetlanym zakresie.
+
 ## 2.8.0-gptsol10-v3native10.23
 
 - zdjęcie kotła zastąpiono plikiem sf11130.jpg dostarczonym przez użytkownika,
