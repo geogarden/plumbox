@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.25
+
+- usunięto nagłówek „Dwa obiegi kotła i ochrona powrotu” ze schematu instalacji.
+
 ## 2.8.0-gptsol10-v3native10.24
 
 - wykres historii temperatur na ekranie głównym pokazuje ostatnie 6 godzin zamiast 24 godzin,

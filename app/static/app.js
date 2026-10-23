@@ -727,7 +727,6 @@
       <div class="scheme-header">
         <div>
           <span class="scheme-eyebrow">SCHEMAT HYDRAULICZNY · UKŁAD DEKLAROWANY</span>
-          <h2>Dwa obiegi kotła i ochrona powrotu</h2>
           <p>Schemat według konfiguracji instalacji użytkownika. CO i CWU mają osobne zasilania oraz powroty.</p>
         </div>
         <div class="scheme-legend" aria-label="Legenda schematu">
