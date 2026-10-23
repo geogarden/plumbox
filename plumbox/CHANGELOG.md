@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.0-gptsol10-v3native10.26
+
+- osiem kafelków podglądu kotła jest ułożonych w dwa rzędy po cztery na ekranach komputera,
+- wentylator przeniesiono do pierwszego rzędu; mieszacz, CWU, paliwo i alarmy tworzą drugi rząd,
+- zachowano układ dwóch kolumn na tabletach oraz jednej kolumny na wąskich ekranach.
+
 ## 2.8.0-gptsol10-v3native10.25
 
 - usunięto nagłówek „Dwa obiegi kotła i ochrona powrotu” ze schematu instalacji.

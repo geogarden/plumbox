@@ -800,7 +800,7 @@ def test_gptsol10_dashboard_has_requested_metric_order_and_full_width_chart(clie
     assert 'class="bottom-row bottom-row-full"' in overview
     top_cards = overview.split('<div class="top-cards">', 1)[1].split('</div>\n\n        <div class="metric-row">', 1)[0]
     assert all(marker in top_cards for marker in ("PODAJNIK", "OBCIĄŻENIE"))
-    assert "grid-template-columns: 1.7fr repeat(2, 1fr)" in styles
+    assert "grid-template-columns: 1.7fr repeat(3, 1fr)" in styles
 
 
 def test_embedded_system_pages_follow_green_oled_palette():
