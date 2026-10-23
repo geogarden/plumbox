@@ -64,7 +64,7 @@ def test_release_version_and_static_cache_are_consistent():
     index = (ROOT / "app" / "static" / "index.html").read_text(encoding="utf-8")
     worker = (ROOT / "app" / "static" / "service-worker.js").read_text(encoding="utf-8")
 
-    assert re.fullmatch(r"\d+\.\d+\.\d+-gptsol\d+-v3native\d+(?:\.\d+)?", __version__)
+    assert re.fullmatch(r"\d+\.\d+\.\d+", __version__)
     if (ROOT / "config.yaml").exists():
         config = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
         assert config["version"] == __version__
@@ -77,3 +77,14 @@ def test_release_version_and_static_cache_are_consistent():
     assert asset.group(1) == f"gptsol-{cache.group(1)}"
     assert f"assets/styles.css?v={asset.group(1)}" in index
     assert f"assets/app.js?v={asset.group(1)}" in index
+
+
+def test_release_version_is_newer_in_home_assistant_comparator():
+    from awesomeversion import AwesomeVersion
+    from app import __version__
+
+    current = AwesomeVersion(__version__)
+    for previous in ("2.8.0-gptsol10-v3native10.25", "2.8.0-gptsol10-v3native10.26"):
+        assert current > AwesomeVersion(previous)
+    major, minor, patch = map(int, __version__.split("."))
+    assert AwesomeVersion(f"{major}.{minor}.{patch + 1}") > current

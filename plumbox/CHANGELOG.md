@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.27
+
+- naprawiono wykrywanie aktualizacji w Home Assistant: wersje korzystają teraz ze standardowego formatu MAJOR.MINOR.PATCH,
+- wydanie jest rozpoznawane jako nowsze od 2.8.0-gptsol10-v3native10.25 i .26,
+- zawiera układ dwóch rzędów kafelków z poprzedniego wydania.
+
 ## 2.8.0-gptsol10-v3native10.26
 
 - osiem kafelków podglądu kotła jest ułożonych w dwa rzędy po cztery na ekranach komputera,
