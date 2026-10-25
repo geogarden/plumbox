@@ -108,6 +108,25 @@
   border-left: 5px solid #686a8c;
   font-size: 9px;
 }
+.scheme-exhaust {
+  position: absolute;
+  z-index: 10;
+  left: 16px;
+  top: 78px;
+  width: 158px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 99px;
+  background: #e87922;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
 .scheme-thermostat span,
 .scheme-thermostat b { display: block; }
 .scheme-thermostat b { margin-top: 3px; color: #5d5f82; font-size: 13px; }
@@ -613,3 +632,4 @@
   .installation-scheme *::before,
   .installation-scheme *::after { animation: none !important; }
 }
+

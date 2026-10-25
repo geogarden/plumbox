@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.32
+
+- dodano pomarańczowy odczyt SPALINY w schemacie instalacji, między temperaturą zewnętrzną a stanem pracy kotła,
+- temperatura spalin aktualizuje się z odczytu exhaust_temp i jest pokazywana z jednym miejscem po przecinku; brak odczytu pozostaje oznaczony kreską.
+
 ## 2.8.31
 
 - czujnik MQTT Exhaust temp otrzymał nazwę „PlumBox Temperatura spalin”,

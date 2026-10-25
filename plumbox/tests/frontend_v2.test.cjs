@@ -193,3 +193,17 @@ test('summer mode select preserves Auto as native code 2 and shows all three mod
   assert.match(html,/<option value="2" selected>Auto<\/option>/);
   assert.equal((html.match(/ selected/g)||[]).length,1);
 });
+
+test('installation scheme shows live exhaust temperature between weather and boiler state',()=>{
+  const p=panel();p.state.snapshot={connected:true,values:{outside_temp:15.5,exhaust_temp:128.126,state_label:'Postój'}};
+  let html=p.installationSchemeHtml();
+  assert.match(html, /class="scheme-exhaust" aria-label="Temperatura spalin">SPALINY <b>128,1°C<\/b>/);
+  assert(html.indexOf('class="scheme-weather"') < html.indexOf('class="scheme-exhaust"'));
+  assert(html.indexOf('class="scheme-exhaust"') < html.indexOf('class="scheme-controller"'));
+  p.state.snapshot.values.exhaust_temp=91;
+  html=p.installationSchemeHtml();assert.match(html, /SPALINY <b>91,0°C/);
+  p.state.snapshot.values.exhaust_temp=0;
+  html=p.installationSchemeHtml();assert.match(html, /SPALINY <b>0,0°C/);
+  delete p.state.snapshot.values.exhaust_temp;
+  html=p.installationSchemeHtml();assert.match(html, /SPALINY <b>—°C/);
+});

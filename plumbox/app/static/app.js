@@ -691,6 +691,8 @@
       ?? finiteNumber(parameterValue("mixer_target_temp", null, "mixer", 0));
     const feederTemp = finiteNumber(val("feeder_temp", null));
     const outsideTemp = finiteNumber(firstSnapshotValue(["outside_temp", "external_temp", "weather_temp"]));
+    const exhaustTemp = finiteNumber(val("exhaust_temp", null));
+    const exhaustText = exhaustTemp === null ? "—" : exhaustTemp.toFixed(1).replace(".", ",");
 
     // Animacje pokazują wyłącznie stany odebrane ze sterownika. Brak flagi
     // nie jest zastępowany domysłem na podstawie nazwy fazy pracy.
@@ -746,6 +748,7 @@
       <div class="scheme-canvas">
         <div class="scheme-plant">
           <div class="scheme-weather">ZEWN. <b>${escapeHtml(fmt(outsideTemp))}°C</b></div>
+          <div class="scheme-exhaust" aria-label="Temperatura spalin">SPALINY <b>${escapeHtml(exhaustText)}°C</b></div>
           <div class="scheme-thermostat"><span>TERMOSTAT</span><b>${escapeHtml(thermostatText)}</b></div>
 
           <div class="scheme-boiler scheme-boiler-photo">
