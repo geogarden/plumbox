@@ -1687,15 +1687,14 @@ def test_auto_detect_uses_snapshot_product_id_to_gate_fan_rpm(tmp_path):
     assert fixed_missing["hardware_profile"]["status"] == "fixed_fallback"
 
 
-def test_hardware_identification_source_and_rpm_warning_are_visible():
+def test_hardware_identification_source_is_visible_in_model_badge():
     root = Path(__file__).resolve().parents[1]
     html = (root / "app" / "static" / "index.html").read_text(encoding="utf-8")
     js = (root / "app" / "static" / "app.js").read_text(encoding="utf-8")
     assert 'id="modelSourceBadge"' in html
-    assert 'id="rpmProfileBanner"' in html
     assert 'fixed_fallback: "MODEL: FIXED"' in js
     assert 'inactive: "MODEL: NIEZNANY"' in js
-    assert "hardware.warning" in js
+    assert 'modelBadge.title = hardware.label || "Źródło identyfikacji modelu"' in js
 
 
 def test_html_pages_are_not_browser_cached(client, anon_client):
@@ -1769,3 +1768,4 @@ def test_installation_specific_pump_labels_are_explicit():
     assert 'deviceLine("◉", "Pompa CO za mieszaczem"' in app_js
     assert 'deviceLine("♨", "Pompa CO"' not in app_js
     assert 'deviceLine("◉", "Pompa mieszacza"' not in app_js
+

@@ -67,6 +67,7 @@
     overview: "PODGLĄD KOTŁA",
     installation: "SCHEMAT INSTALACJI",
     heating: "CO I KOCIOŁ",
+    work_schedule: "HARMONOGRAM PRACY KOTŁA",
     water_heater: "CIEPŁA WODA UŻYTKOWA",
     summer: "LATO / ZIMA",
     mixer: "MIESZACZ",
@@ -1058,6 +1059,10 @@
   }
 
   async function executeWrite(write, confirmed) {
+    if (write.kind === "work_schedule") {
+      await window.PlumBoxWorkSchedule.save(write.payload, confirmed);
+      return;
+    }
     try {
       if (!await checkAuth()) { if (!state.authExpired) toast("Sprawdź połączenie i odblokuj sterowanie.", "error"); return; }
       if (!state.unlocked) { showUnlock(); await render(); return; }
@@ -1552,6 +1557,10 @@
   }
 
   function refreshActiveSnapshotView() {
+    if (state.activeView === "work_schedule") {
+      render();
+      return;
+    }
     if (state.activeView === "overview") {
       render();
       return;
@@ -1584,6 +1593,22 @@
     if (!state.snapshot) { content.innerHTML = `<div class="loading-card">Oczekiwanie na dane…</div>`; return; }
     setConnectionUi();
     $("viewTitle").textContent = titles[state.activeView] || "PLUMBOX";
+    if (state.activeView === "work_schedule") {
+      await window.PlumBoxWorkSchedule.mount({
+        content, api, toast, checkAuth, unlock: showUnlock,
+        isActive: () => state.activeView === "work_schedule",
+        access: () => ({connected: !!state.snapshot?.connected, role: state.role, unlocked: state.unlocked}),
+        confirm: (payload) => {
+          state.pendingWrite = {kind: "work_schedule", payload};
+          $("confirmTitle").textContent = "Zapis harmonogramu pracy kotła";
+          $("confirmText").textContent = `Zastąpić tygodniowy plan w sterowniku? Harmonogram: ${payload.enabled ? "włączony" : "wyłączony"}. Zaplanowane przerwy mogą ograniczać również grzanie CWU.`;
+          $("confirmCheckbox").checked = false;
+          $("confirmButton").disabled = true;
+          $("confirmDialog").showModal();
+        },
+      });
+      return;
+    }
     if (state.activeView === "overview") {
       const html = overviewHtml();
       if (content.querySelector(".dashboard-shell")) {
@@ -1657,6 +1682,7 @@
   }
 
   function switchView(view) {
+    if (state.activeView === "work_schedule" && view !== "work_schedule" && !window.PlumBoxWorkSchedule.canLeave()) return;
     state.activeView = view;
     document.querySelectorAll("[data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
     $("sidebar").classList.remove("open");
@@ -1858,3 +1884,4 @@
 
   init();
 })();
+

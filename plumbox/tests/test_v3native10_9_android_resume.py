@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).parents[1]
@@ -31,9 +32,10 @@ def test_websocket_reconnect_is_single_instance_and_timer_is_tracked():
     assert "function restartWebSocket()" in APP_JS
 
 
-def test_frontend_cache_revision_is_v38():
+def test_frontend_cache_revision_matches_versioned_assets():
     index = (ROOT / "app" / "static" / "index.html").read_text(encoding="utf-8")
     worker = (ROOT / "app" / "static" / "service-worker.js").read_text(encoding="utf-8")
-    assert "gptsol-44" in index
-    assert 'CACHE = "plumbox-gptsol-static-v44"' in worker
-    assert 'ASSET_VERSION = "gptsol-44"' in worker
+    revision = re.search(r'ASSET_VERSION = "gptsol-(\d+)"', worker).group(1)
+    assert f"gptsol-{revision}" in index
+    assert f'CACHE = "plumbox-gptsol-static-v{revision}"' in worker
+

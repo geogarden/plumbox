@@ -10,8 +10,8 @@ def test_installation_scheme_is_registered_as_a_native_view():
 
     assert 'data-view="installation"' in index
     assert "Schemat instalacji" in index
-    assert 'scheme.css?v=gptsol-60' in index
-    assert 'app.js?v=gptsol-60' in index
+    assert 'scheme.css?v=gptsol-61' in index
+    assert 'app.js?v=gptsol-61' in index
     assert 'installation: "SCHEMAT INSTALACJI"' in script
     assert "installationSchemeHtml" in script
     assert "UKŁAD DEKLAROWANY" in script
@@ -61,3 +61,4 @@ def test_live_refresh_preserves_computed_scheme_layout():
     assert "captureInstallationScroll" in script
     assert "restoreInstallationScroll(scrollPositions)" in script
     assert "overflow-anchor: none" in stylesheet
+

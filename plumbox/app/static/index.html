@@ -18,8 +18,8 @@
   <title>PlumBox</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=gptsol-60">
-  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-60">
+  <link rel="stylesheet" href="assets/styles.css?v=gptsol-61">
+  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-61">
 </head>
 <body>
   <div class="app-shell">
@@ -37,6 +37,7 @@
         <button class="nav-item active" data-view="overview"><span>◈</span>Podgląd</button>
         <button class="nav-item" data-view="installation"><span>⌁</span>Schemat instalacji</button>
         <button class="nav-item" data-view="heating"><span>♨</span>CO i kocioł</button>
+        <button class="nav-item" data-view="work_schedule"><span>◷</span>Praca wg harmonogramu</button>
         <button class="nav-item" data-view="water_heater"><span>❋</span>CWU</button>
         <button class="nav-item" data-view="summer"><span>☀</span>Lato / zima</button>
         <button class="nav-item" data-view="mixer"><span>❖</span>Mieszacz</button>
@@ -71,7 +72,7 @@
 
       <div class="sidebar-footer">
         <button id="lockButton" class="lock-button">🔒 Odblokuj sterowanie</button>
-        <div class="sidebar-version">PlumBox v2.8.27</div>
+        <div class="sidebar-version">PlumBox v2.8.28</div>
         <div class="sidebar-copy">Lokalny panel ecoMAX · V3 Native</div>
       </div>
     </aside>
@@ -141,7 +142,9 @@
   </dialog>
 
   <div id="toastContainer" class="toast-container"></div>
-  <script src="assets/boiler_views.js?v=gptsol-60" defer></script>
-  <script src="assets/app.js?v=gptsol-60" defer></script>
+  <script src="assets/boiler_views.js?v=gptsol-61" defer></script>
+  <script src="assets/work_schedule.js?v=gptsol-61" defer></script>
+  <script src="assets/app.js?v=gptsol-61" defer></script>
 </body>
 </html>
+

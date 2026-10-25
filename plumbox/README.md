@@ -55,3 +55,24 @@ Kod przeszedł testy lokalne i symulator, ale nie został potwierdzony na fizycz
 - gotowe paczki: `wydania/`.
 
 Pierwszy start wykonać w `simulation`. Na sprzęcie najpierw sprawdzić wyłącznie odczyty i porównać je z panelem regulatora.
+
+
+## Praca wg harmonogramu
+
+W sekcji **Kocioł**, pod **CO i kocioł**, wybierz **Praca wg harmonogramu**.
+Panel odczyta tygodniowy plan ze sterownika. Wybierz dzień, godzinę od/do i stan
+**Praca dozwolona** albo **Przerwa**, a następnie **Ustaw przedział**.
+Jedno pole odpowiada 30 minutom; godzina **24:00** kończy wybrany dzień.
+Przedział przechodzący przez północ ustaw osobno w dwóch dniach.
+
+Pole **Harmonogram włączony** włącza ograniczanie pracy według planu.
+**Zapisz harmonogram** wymaga konta administratora, odblokowania sterowania
+zgodnie z ustawieniem PIN-u i potwierdzenia. Dopiero nowy, zgodny odczyt
+ze sterownika oznacza potwierdzony zapis. **Anuluj zmiany** odrzuca projekt
+formularza; nie cofa wcześniejszych zapisów w kotle.
+
+Plan działa w sterowniku, również po zamknięciu panelu lub zatrzymaniu PlumBox.
+Obowiązuje zegar kotła. Dozwolona praca nie wymusza ciągłego palenia;
+przerwa może ograniczyć również zwykłe grzanie CWU. Zabezpieczenia regulatora
+pozostają aktywne. Gdy sterownik nie udostępnia poprawnego odczytu planu,
+edycja jest niedostępna. Nie są wtedy tworzone fikcyjne godziny.

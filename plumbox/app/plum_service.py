@@ -21,6 +21,7 @@ from .serializer import (
     state_label,
 )
 from .simulator import Simulator
+from .work_schedule import WorkSchedule
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,6 +99,7 @@ class PlumService:
         self._last_failure_phase: str | None = None
         self._last_failure_at: str | None = None
         self._simulator = Simulator() if config.connection.type.lower() == "simulation" else None
+        self.work_schedule = WorkSchedule(self)
 
     def _set_transport_phase(self, phase: str, session_id: int | None = None) -> None:
         self._transport_phase = phase
@@ -1214,3 +1216,4 @@ class PlumService:
             .get(name, {})
             .get("value")
         )
+

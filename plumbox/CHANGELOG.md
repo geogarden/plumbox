@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.8.28
+
+- dodano menu „Praca wg harmonogramu” z tygodniem od poniedziałku do niedzieli i przedziałami co 30 minut,
+- plan jest odczytywany i zapisywany w sterowniku przez PyPlumIO; zachowano powiązany parametr harmonogramu,
+- zapis wymaga administratora, PIN-u zgodnie z konfiguracją i potwierdzenia; sukces wymaga nowego odczytu planu,
+- zmiana planu na innym panelu blokuje zastąpienie go nieaktualnym projektem; niepotwierdzonego zapisu nie ponawia się automatycznie.
+
 ## 2.8.27
 
 - naprawiono wykrywanie aktualizacji w Home Assistant: wersje korzystają teraz ze standardowego formatu MAJOR.MINOR.PATCH,
@@ -231,3 +238,4 @@
 - walidator porównuje źródła z każdym gotowym drzewem wydania,
 - sekcja Mieszacz zachowuje widoczne karty podczas chwilowo pustej ramki,
 - nowy identyfikator zasobów `gptsol-4` odcina wadliwy cache `gptsol-3`.
+

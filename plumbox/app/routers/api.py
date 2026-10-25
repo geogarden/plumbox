@@ -7,13 +7,14 @@ from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import APIRouter, Header, HTTPException, Query, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool
 
 from ..audit_context import audit_actor
 from ..common import utc_now_iso
 from ..deps import INITIAL_PIN_FILE, current_user_from_request, require_admin_user, require_control_user, state
 from ..mappings import PARAMETER_META, SECTIONS, SENSOR_META
 from ..security import verify_pin
+from ..work_schedule import ScheduleConflict, validate_week
 
 router = APIRouter(prefix="/api")
 
@@ -33,6 +34,38 @@ class SetParameterRequest(BaseModel):
 class PowerRequest(BaseModel):
     enabled: bool
     confirmed: bool = False
+
+
+class WorkScheduleRequest(BaseModel):
+    week: list[list[StrictBool]]
+    enabled: bool = Field(strict=True)
+    revision: str = Field(pattern=r"^[a-f0-9]{64}$")
+    confirmed: bool = False
+
+
+@router.get("/work-schedule")
+async def work_schedule(refresh: bool = False) -> dict[str, Any]:
+    return await state.service.work_schedule.read(force=refresh)
+
+
+@router.put("/work-schedule")
+async def save_work_schedule(
+    payload: WorkScheduleRequest, request: Request,
+    x_plumbox_token: str | None = Header(default=None),
+) -> dict[str, Any]:
+    user = require_control_user(request, x_plumbox_token, roles={"admin"})
+    if not payload.confirmed:
+        raise HTTPException(status_code=409, detail="Potwierdź zapis harmonogramu do sterownika.")
+    try:
+        validate_week(payload.week)
+        with audit_actor(str(user.get("username"))):
+            return await state.service.work_schedule.write(payload.week, payload.enabled, payload.revision)
+    except ScheduleConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (RuntimeError, KeyError, AttributeError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 def risk_for(request: SetParameterRequest) -> str:
@@ -254,3 +287,4 @@ async def audit(
 ) -> dict[str, Any]:
     require_admin_user(request)
     return {"rows": await state.database.audit(limit)}
+
