@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.29
+
+- w podsumowaniu H1/H2 zastąpiono niedostępne odczyty mocy w kW czasami pracy podajnika dla mocy MAX, średniej i minimalnej,
+- kafelki odczytują fuel_feeding_work_100/50/30 i pokazują sekundy, zachowując brak odczytu jako „—”; progi H1/H2 pozostają bez zmian.
+
 ## 2.8.28
 
 - dodano menu „Praca wg harmonogramu” z tygodniem od poniedziałku do niedzieli i przedziałami co 30 minut,

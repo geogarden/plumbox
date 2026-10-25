@@ -519,9 +519,9 @@
     const h1Threshold = target - h1;
     const restartThreshold = target - restartHysteresis;
 
-    const powerMax = parameterValue("boiler_power_100", "—");
-    const powerMid = parameterValue("boiler_power_50", "—");
-    const powerMin = parameterValue("boiler_power_30", "—");
+    const workMax = parameterValue("fuel_feeding_work_100", "—");
+    const workMid = parameterValue("fuel_feeding_work_50", "—");
+    const workMin = parameterValue("fuel_feeding_work_30", "—");
     const currentTemp = finiteNumber(val("heating_temp", null));
 
     const threeLevels = h1 < h2;
@@ -546,22 +546,22 @@
 
         <div class="hysteresis-threshold-grid">
           <article class="threshold-card max">
-            <span class="threshold-label">MOC MAX</span>
-            <strong>${escapeHtml(fmt(powerMax))} kW</strong>
+            <span class="threshold-label">CZAS PRACY · MOC MAX</span>
+            <strong>${escapeHtml(fmt(workMax))} s</strong>
             <div>Praca poniżej <b>${escapeHtml(fmt(h2Threshold))}°C</b></div>
             <small>H2 = ${escapeHtml(fmt(h2))}°C</small>
           </article>
 
           <article class="threshold-card mid">
-            <span class="threshold-label">MOC ŚREDNIA</span>
-            <strong>${escapeHtml(fmt(powerMid))} kW</strong>
+            <span class="threshold-label">CZAS PRACY · MOC ŚREDNIA</span>
+            <strong>${escapeHtml(fmt(workMid))} s</strong>
             <div>${threeLevels ? `Zakres <b>${escapeHtml(middleRange)}</b>` : "<b>Zakres mocy pośredniej jest pomijany</b>"}</div>
             <small>Próg H2: ${escapeHtml(fmt(h2Threshold))}°C</small>
           </article>
 
           <article class="threshold-card min">
-            <span class="threshold-label">MOC MIN</span>
-            <strong>${escapeHtml(fmt(powerMin))} kW</strong>
+            <span class="threshold-label">CZAS PRACY · MOC MINIMALNA</span>
+            <strong>${escapeHtml(fmt(workMin))} s</strong>
             <div>Od <b>${escapeHtml(fmt(h1Threshold))}°C</b> do temperatury zadanej</div>
             <small>H1 = ${escapeHtml(fmt(h1))}°C</small>
           </article>

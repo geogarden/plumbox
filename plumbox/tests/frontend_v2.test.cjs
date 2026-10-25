@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml};';
+  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -160,4 +160,26 @@ test('photo readouts update from snapshot and preserve missing sensor values', (
   assert.match(html, /burner-idle/);
   assert.match(html, /Podawanie: brak odczytu/);
   assert.doesNotMatch(html, /67|29/);
+});
+
+
+test('H1/H2 cards show feeder work times in seconds rather than unavailable boiler kW',()=>{
+  const p=panel();
+  p.state.snapshot={values:{heating_target:75,heating_temp:67},parameters:{
+    fuel_feeding_work_100:{value:7.5},fuel_feeding_work_50:{value:5},fuel_feeding_work_30:{value:2},
+    boiler_power_100:{value:99},boiler_power_50:{value:88},boiler_power_30:{value:77}
+  }};
+  const html=p.hysteresisSummaryHtml();
+  for(const text of ['CZAS PRACY · MOC MAX','CZAS PRACY · MOC ŚREDNIA','CZAS PRACY · MOC MINIMALNA','7,5 s','5 s','2 s'])assert(html.includes(text),text);
+  assert(!html.includes(' kW'));
+  assert(!html.includes('99 s'));
+});
+
+test('missing feeder times stay missing and a zero time is preserved',()=>{
+  const p=panel();
+  p.state.snapshot={values:{heating_target:75},parameters:{fuel_feeding_work_100:{value:0},boiler_power_50:{value:11}}};
+  const html=p.hysteresisSummaryHtml();
+  assert(html.includes('<strong>0 s</strong>'));
+  assert.equal((html.match(/<strong>— s<\/strong>/g)||[]).length,2);
+  assert(!html.includes('11 s'));
 });
