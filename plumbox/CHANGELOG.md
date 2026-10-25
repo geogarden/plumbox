@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.30
+
+- dodano tryb Auto do wyboru trybu pracy kotła: Zima (0), Lato (1), Auto (2),
+- uzupełniono nazwę zakładki i parametru o wszystkie trzy tryby; wybór jest przesyłany jako natywna wartość summer_mode.
+
 ## 2.8.29
 
 - w podsumowaniu H1/H2 zastąpiono niedostępne odczyty mocy w kW czasami pracy podajnika dla mocy MAX, średniej i minimalnej,
@@ -243,4 +248,5 @@
 - walidator porównuje źródła z każdym gotowym drzewem wydania,
 - sekcja Mieszacz zachowuje widoczne karty podczas chwilowo pustej ramki,
 - nowy identyfikator zasobów `gptsol-4` odcina wadliwy cache `gptsol-3`.
+
 

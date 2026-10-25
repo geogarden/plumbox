@@ -69,7 +69,7 @@
     heating: "CO I KOCIOŁ",
     work_schedule: "HARMONOGRAM PRACY KOTŁA",
     water_heater: "CIEPŁA WODA UŻYTKOWA",
-    summer: "LATO / ZIMA",
+    summer: "LATO / ZIMA / AUTO",
     mixer: "MIESZACZ",
     fuel_calibration: "PRACA",
     boiler_powers: "MOCE 100/50/30%",
@@ -1884,4 +1884,5 @@
 
   init();
 })();
+
 

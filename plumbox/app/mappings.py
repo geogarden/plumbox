@@ -248,11 +248,11 @@ PARAMETER_META: dict[str, dict[str, Any]] = {
 
     # Lato.
     "summer_mode": {
-        "label": "Tryb LATO",
+        "label": "Tryb pracy: Lato / Zima / Auto",
         "section": "summer",
         "risk": "safe",
         "kind": "select",
-        "options": {"0": "Zima", "1": "Lato"},
+        "options": {"0": "Zima", "1": "Lato", "2": "Auto"},
     },
     "summer_mode_enable_temp": {
         "label": "Temperatura wejścia w tryb LATO",
@@ -692,3 +692,4 @@ def display_step(
     if fan_rpm_enabled and name in FAN_RPM_NAMES and _is_number(native_step):
         return native_step * FAN_RPM_SCALE
     return native_step
+

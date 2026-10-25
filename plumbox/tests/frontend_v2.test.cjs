@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml};';
+  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, editorHtml};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -182,4 +182,14 @@ test('missing feeder times stay missing and a zero time is preserved',()=>{
   assert(html.includes('<strong>0 s</strong>'));
   assert.equal((html.match(/<strong>— s<\/strong>/g)||[]).length,2);
   assert(!html.includes('11 s'));
+});
+
+
+test('summer mode select preserves Auto as native code 2 and shows all three modes',()=>{
+  const p=panel();p.state.unlocked=true;
+  const html=p.editorHtml({name:'summer_mode',scope:'ecomax',index:0,kind:'select',risk:'safe',value:2,native_value:2,options:{'0':'Zima','1':'Lato','2':'Auto'}});
+  assert.match(html,/<option value="0" >Zima<\/option>/);
+  assert.match(html,/<option value="1" >Lato<\/option>/);
+  assert.match(html,/<option value="2" selected>Auto<\/option>/);
+  assert.equal((html.match(/ selected/g)||[]).length,1);
 });
