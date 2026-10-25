@@ -6,13 +6,14 @@ import asyncio
 import logging
 import socket
 import time
+from dataclasses import replace
 from typing import Any, Awaitable, Callable
 
 from .common import profile_mode, utc_now_iso
 from .config import AppConfig
 from .controller_profile import build_controller_profile
 from .database import Database
-from .mappings import fan_rpm_profile_state, meta_for, native_value
+from .mappings import fan_rpm_profile_state, meta_for, model_parameter_range, native_value
 from .serializer import (
     alert_to_dict,
     is_parameter,
@@ -775,6 +776,7 @@ class PlumService:
                     index=0,
                     fan_rpm_enabled=fan_rpm_enabled,
                     airflow_correction_enabled=airflow_correction_enabled,
+                    range_override=model_parameter_range(name, "ecomax", self._product_id(product)),
                 )
             elif isinstance(item, (str, int, float, bool)) or item is None:
                 values[name] = simple_value(item)
@@ -992,6 +994,7 @@ class PlumService:
                         airflow_correction_enabled=self._fan_rpm_enabled(),
                     )
                     current_item = getattr(device, "data", {}).get(name)
+                    self._prepare_model_parameter_range(current_item, scope, name)
                     current_native = getattr(current_item, "value", current_item)
                     if self._same_parameter_value(current_native, native):
                         message = "Wartość była już ustawiona; nie wysłano ponownego zapisu."
@@ -1055,6 +1058,20 @@ class PlumService:
                     message,
                 )
                 raise
+
+    def _prepare_model_parameter_range(self, parameter: Any, scope: str, name: str) -> None:
+        product = (self.snapshot.get("values") or {}).get("product")
+        bounds = model_parameter_range(name, scope, self._product_id(product))
+        if not bounds or parameter is None:
+            return
+        # PyPlumIO 0.6.8 validates against ParameterValues. Correct only these
+        # limits, preserving its value, parameter index, encoding and set/readback
+        # path. The next controller response can still replace the metadata.
+        parameter.update(replace(
+            parameter.values,
+            min_value=parameter._pack_value(bounds[0]),
+            max_value=parameter._pack_value(bounds[1]),
+        ))
 
     async def set_controller_power(self, enabled: bool) -> dict[str, Any]:
         if self._simulator:
@@ -1216,4 +1233,5 @@ class PlumService:
             .get(name, {})
             .get("value")
         )
+
 

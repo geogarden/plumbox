@@ -1,0 +1,67 @@
+name: Publish PlumBox 2.8.33
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-2.8.33.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-2.8.33
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Prepare versioned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init source
+          git -C source remote add origin "https://github.com/${GH_REPO}.git"
+          git -C source fetch --depth=1 origin "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          grep -qx 'version: "2.8.33"' source/plumbox/config.yaml
+          git -C source archive --format=zip --prefix=plumbox/ HEAD:plumbox > plumbox-2.8.33.zip
+          unzip -t plumbox-2.8.33.zip
+          sha256sum plumbox-2.8.33.zip > plumbox-2.8.33.zip.sha256
+          cat > release-notes.md <<'NOTES'
+          ## PlumBox 2.8.33
+
+          - Dla SF 11/130 / ecoMAX 860P4-LZ (product ID 2) zakres temperatury wyjścia z trybu LATO wynosi teraz 1–15°C, zgodnie z zakresem potwierdzonym przez użytkownika na kotle.
+          - Korekta obejmuje formularz oraz wspólną ścieżkę zapisu przez PyPlumIO. Zachowano natywne kodowanie, uprawnienia i potwierdzanie zapisu odczytem.
+          - Pozostałe modele i parametry zachowują zakresy odczytane ze sterownika.
+          - Z Historii temperatur usunięto serię Powrót, jej legendę i podpowiedzi wykresu.
+
+          Walidacja: testy zapisu 11°C i 15°C z symulowaną odpowiedzią sterownika, odrzucania wartości poza zakresem, pozostałych profili oraz listy serii wykresu.
+
+          ### Aktualizacja
+          W Home Assistant odśwież sklep aplikacji i zaktualizuj PlumBox z repozytorium GitHub. Zachowaj dane i konfigurację aplikacji.
+
+          Paczka plumbox-2.8.33.zip zawiera folder plumbox do instalacji ręcznej. Plik .sha256 pozwala sprawdzić integralność pobranego archiwum.
+          NOTES
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.8.33 >/dev/null 2>&1; then
+            echo "Release v2.8.33 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.8.33 plumbox-2.8.33.zip plumbox-2.8.33.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "PlumBox 2.8.33" \
+            --notes-file release-notes.md \
+            --latest
+
+

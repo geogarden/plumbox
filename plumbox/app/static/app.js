@@ -48,12 +48,11 @@
     (getComputedStyle(document.documentElement).getPropertyValue(name) || "").trim() || fallback;
   const chartSeries = () => [
     ["heating_temp", cssColor("--chart-s1", "#e8563a"), "Kocioł"],
-    ["return_temp", cssColor("--chart-s2", "#22a06b"), "Powrót"],
     ["water_heater_temp", cssColor("--chart-s3", "#4a8fe8"), "CWU"],
     ["mixer_temp", cssColor("--chart-s4", "#bb8b16"), "Mieszacz"],
   ];
 
-  const overviewChartSeries = () => chartSeries().filter(([key]) => key !== "return_temp");
+  const overviewChartSeries = () => chartSeries();
 
   const appBase = new URL(location.href);
   if (!appBase.pathname.endsWith("/")) appBase.pathname += "/";

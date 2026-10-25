@@ -30,12 +30,12 @@ function panel(fetchImpl, fastTimers = false) {
     localStorage: {getItem:k=>storage.get(k)||null, setItem:(k,v)=>storage.set(k,v), removeItem:k=>storage.delete(k)},
     document: {getElementById:element, querySelectorAll:()=>editors, visibilityState:'visible'},
     location:{href:'https://ha.example/api/hassio_ingress/abc/',protocol:'https:'},
-    URL, Headers, AbortController, Date, WebSocket:Socket,
+    URL, Headers, AbortController, Date, WebSocket:Socket, getComputedStyle:()=>({getPropertyValue:()=>""}),
     fetch:fetchImpl || (async()=>new Response(JSON.stringify({connected:true}),{headers:{'Content-Type':'application/json'}})),
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, editorHtml};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, editorHtml, historyHtml, chartSeries};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -206,4 +206,12 @@ test('installation scheme shows live exhaust temperature between weather and boi
   html=p.installationSchemeHtml();assert.match(html, /SPALINY <b>0,0°C/);
   delete p.state.snapshot.values.exhaust_temp;
   html=p.installationSchemeHtml();assert.match(html, /SPALINY <b>—°C/);
+});
+
+test('temperature history chart and legend exclude the return series',async()=>{
+  const p=panel(async()=>json({rows:[{heating_temp:67,return_temp:55,water_heater_temp:48,mixer_temp:42}]}));
+  assert.deepEqual(Array.from(p.chartSeries(),item=>item[0]),['heating_temp','water_heater_temp','mixer_temp']);
+  const html=await p.historyHtml();
+  assert(!html.includes('return_temp'));assert(!html.includes('Powrót'));
+  for(const label of ['Kocioł','CWU','Mieszacz'])assert(html.includes(label));
 });

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.33
+
+- skorygowano zakres temperatury wyjścia z trybu LATO do 1–15°C dla ecoMAX 860P4-LZ (product ID 2), zgodnie z zakresem potwierdzonym przez użytkownika SF 11/130; korekta obejmuje formularz i walidację zapisu,
+- pozostałe modele zachowują limity ze sterownika; zapis nadal wymaga dotychczasowych uprawnień i zgodnego odczytu zwrotnego,
+- usunięto serię Powrót z wykresu, legendy i podpowiedzi w Historii temperatur.
+
 ## 2.8.32
 
 - dodano pomarańczowy odczyt SPALINY w schemacie instalacji, między temperaturą zewnętrzną a stanem pracy kotła,

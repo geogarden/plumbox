@@ -547,6 +547,16 @@ def meta_for(name: str, scope: str = "ecomax") -> dict[str, Any]:
     return meta
 
 
+def model_parameter_range(name: str, scope: str, product_id: Any) -> tuple[int, int] | None:
+    """SF 11/130 / 860P4-LZ range confirmed on the user's boiler, 2026-10-25.
+
+    Do not apply this correction to the PE/RPM profile or unidentified models.
+    """
+    if scope == "ecomax" and name == "summer_mode_disable_temp" and str(product_id) == "2":
+        return (1, 15)
+    return None
+
+
 # Przelicznik POTWIERDZONY SPRZĘTOWO (2026-07-17, ecoMAX 860P4 użytkownika):
 # korekty nadmuchu są przechowywane natywnie z przesunięciem +100
 # (natywne 100 = korekta 0 na panelu kotła, 101 = +1; zakres natywny 80–130

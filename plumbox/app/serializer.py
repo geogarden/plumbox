@@ -120,6 +120,7 @@ def parameter_to_dict(
     *,
     fan_rpm_enabled: bool = False,
     airflow_correction_enabled: bool = False,
+    range_override: tuple[int, int] | None = None,
 ) -> dict[str, Any]:
     meta = meta_for(name, scope)
     native = parameter.value
@@ -171,14 +172,14 @@ def parameter_to_dict(
         native=native,
         minimum=display_value(
             name,
-            parameter.min_value,
+            range_override[0] if range_override else parameter.min_value,
             scope,
             fan_rpm_enabled=fan_rpm_enabled,
             airflow_correction_enabled=airflow_correction_enabled,
         ),
         maximum=display_value(
             name,
-            parameter.max_value,
+            range_override[1] if range_override else parameter.max_value,
             scope,
             fan_rpm_enabled=fan_rpm_enabled,
             airflow_correction_enabled=airflow_correction_enabled,
@@ -223,3 +224,4 @@ def state_label(value: Any, *, ecomax860p4_profile_enabled: bool = False) -> str
         return STATE_LABELS.get(code, f"Stan {numeric}")
     except (TypeError, ValueError):
         return str(value)
+
