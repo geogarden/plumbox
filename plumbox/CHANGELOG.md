@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.34
+
+- temperatura kotła current_temp jest zaokrąglana do dwóch miejsc po przecinku we wszystkich kanałach MQTT i stanie JSON,
+- MQTT Discovery sugeruje dwa miejsca po przecinku dla tego czujnika; zachowano jego nazwę, tematy i unique_id.
+
 ## 2.8.33
 
 - skorygowano zakres temperatury wyjścia z trybu LATO do 1–15°C dla ecoMAX 860P4-LZ (product ID 2), zgodnie z zakresem potwierdzonym przez użytkownika SF 11/130; korekta obejmuje formularz i walidację zapisu,

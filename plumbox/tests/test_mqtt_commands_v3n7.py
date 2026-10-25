@@ -703,3 +703,30 @@ def test_mqtt_temperature_zero_missing_and_whole_degrees():
     asyncio.run(instance.publish(current))
     topics = {topic: payload for topic, payload, _ in instance._client.calls}
     assert topics['plumbox/entity/value/exhaust_temp'] == ''
+
+
+def test_current_temperature_rounds_to_two_decimals_in_every_mqtt_channel():
+    instance = publisher(MqttConfig(enabled=True, home_assistant_discovery=False))
+    original = snapshot()
+    original['values'] = {'current_temp': 67.12345678901234}
+    asyncio.run(instance.publish(original))
+    topics = {topic: payload for topic, payload, _ in instance._client.calls}
+    for topic in ('plumbox/value/current_temp', 'plumbox/raw/values/current_temp', 'plumbox/entity/value/current_temp'):
+        assert topics[topic] == '67.12'
+    assert json.loads(topics['plumbox/state'])['values']['current_temp'] == 67.12
+    assert original['values']['current_temp'] == 67.12345678901234
+
+
+def test_current_temperature_discovery_preserves_identity_and_sets_two_decimals():
+    instance = publisher(MqttConfig(enabled=True))
+    instance._last_snapshot['values'] = {'current_temp': 67.12345678901234}
+    instance._last_snapshot['profile']['entities'].append(
+        {'path': 'value/current_temp', 'label': 'Current temp', 'domain': 'sensor'}
+    )
+    config = discovery_payloads(instance)['homeassistant/sensor/plumbox/value_current_temp/config']
+    assert config['unique_id'] == 'plumbox_value_current_temp'
+    assert config['state_topic'] == 'plumbox/entity/value/current_temp'
+    assert config['name'] == 'PlumBox Current temp'
+    assert config['suggested_display_precision'] == 2
+    assert config['unit_of_measurement'] == '°C'
+    assert config['device_class'] == 'temperature'

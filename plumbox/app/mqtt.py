@@ -23,7 +23,9 @@ _FULL_STATE_HEARTBEAT_SECONDS = 60.0
 _MQTT_TEMPERATURES = {
     "exhaust_temp": {"label": "Temperatura spalin"},
     "outside_temp": {},
+    "current_temp": {},
 }
+_MQTT_TEMPERATURE_PRECISION = {"exhaust_temp": 1, "outside_temp": 1, "current_temp": 2}
 
 
 def _mqtt_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
@@ -31,10 +33,10 @@ def _mqtt_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(values, dict):
         return snapshot
     rounded = dict(values)
-    for key in _MQTT_TEMPERATURES:
+    for key, precision in _MQTT_TEMPERATURE_PRECISION.items():
         value = values.get(key)
         if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
-            rounded[key] = round(float(value), 1)
+            rounded[key] = round(float(value), precision)
     return {**snapshot, "values": rounded}
 
 ParameterWriter = Callable[[str, int, str, Any], Awaitable[dict[str, Any]]]
@@ -486,7 +488,7 @@ class MqttPublisher:
             if entity.get("device_class"):
                 config["device_class"] = entity["device_class"]
             if domain == "sensor" and path in {f"value/{key}" for key in _MQTT_TEMPERATURES}:
-                config["suggested_display_precision"] = 1
+                config["suggested_display_precision"] = _MQTT_TEMPERATURE_PRECISION[path.removeprefix("value/")]
             parameter = self._parameter_by_entity_path(snapshot, path)
             if parameter and domain in {"number", "select", "switch"}:
                 config["command_topic"] = f"{base}/command/{path}"
