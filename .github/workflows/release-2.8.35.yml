@@ -1,0 +1,67 @@
+name: Publish PlumBox 2.8.35
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-2.8.35.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-2.8.35
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Prepare versioned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init source
+          git -C source remote add origin "https://github.com/${GH_REPO}.git"
+          git -C source fetch --depth=1 origin "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          grep -qx 'version: "2.8.35"' source/plumbox/config.yaml
+          git -C source archive --format=zip --prefix=plumbox/ HEAD:plumbox > plumbox-2.8.35.zip
+          unzip -t plumbox-2.8.35.zip
+          sha256sum plumbox-2.8.35.zip > plumbox-2.8.35.zip.sha256
+          cat > release-notes.md <<'NOTES'
+          ## PlumBox 2.8.35
+
+          - Poprawiono pominięcie temperatur mieszaczy w wersji 2.8.34.
+          - current_temp każdego mieszacza jest zaokrąglany do dwóch miejsc po przecinku w kanałach MQTT entity, raw i stanie JSON.
+          - Discovery tych czujników określa precyzję 2 i jednostkę °C. Zachowano nazwy, tematy i unique_id.
+          - Przykład ze zgłoszenia: 38.605987548828125 → 38.61°C.
+
+          Walidacja: testy wielu mieszaczy, rzeczywistej wartości ze zgłoszenia, wszystkich kanałów MQTT, Discovery, wartości zero i brak odczytu oraz zachowania oryginalnych danych i parametrów.
+
+          ### Aktualizacja
+          W Home Assistant odśwież sklep aplikacji i zaktualizuj PlumBox z repozytorium GitHub. Zachowaj dane i konfigurację aplikacji.
+
+          Paczka plumbox-2.8.35.zip zawiera folder plumbox do instalacji ręcznej. Plik .sha256 pozwala sprawdzić integralność pobranego archiwum.
+          NOTES
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.8.35 >/dev/null 2>&1; then
+            echo "Release v2.8.35 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.8.35 plumbox-2.8.35.zip plumbox-2.8.35.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "PlumBox 2.8.35" \
+            --notes-file release-notes.md \
+            --latest
+
+

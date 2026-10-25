@@ -730,3 +730,45 @@ def test_current_temperature_discovery_preserves_identity_and_sets_two_decimals(
     assert config['suggested_display_precision'] == 2
     assert config['unit_of_measurement'] == '°C'
     assert config['device_class'] == 'temperature'
+
+
+def test_mixer_current_temperature_rounding_in_raw_entity_and_state_without_mutation():
+    import copy
+    instance = publisher(MqttConfig(enabled=True, home_assistant_discovery=False))
+    original = snapshot()
+    original['mixers'] = {
+        '0': {'values': {'current_temp': 38.605987548828125, 'other_value': 1.23456}, 'parameters': {}},
+        '1': {'values': {'current_temp': 42.126}, 'parameters': {'current_temp': {'native_value': 55.1234}}},
+        '2': {'values': {'current_temp': 0}, 'parameters': {}},
+        '3': {'values': {'current_temp': None}, 'parameters': {}},
+    }
+    before = copy.deepcopy(original)
+    asyncio.run(instance.publish(original))
+    topics = {topic: payload for topic, payload, _ in instance._client.calls}
+    for index, expected in [('0', '38.61'), ('1', '42.13'), ('2', '0.0'), ('3', '')]:
+        assert topics[f'plumbox/entity/mixer/{index}/value/current_temp'] == expected
+        assert topics[f'plumbox/raw/mixers/{index}/values/current_temp'] == expected
+        actual = json.loads(topics['plumbox/state'])['mixers'][index]['values']['current_temp']
+        assert actual == (float(expected) if expected else None)
+    assert original == before
+    assert topics['plumbox/entity/mixer/0/value/other_value'] == '1.23456'
+    assert json.loads(topics['plumbox/state'])['mixers']['1']['parameters']['current_temp']['native_value'] == 55.1234
+
+
+def test_mixer_temperature_discovery_has_two_decimals_for_profile_and_detected_entities():
+    instance = publisher(MqttConfig(enabled=True))
+    instance._last_snapshot['mixers'] = {
+        str(index): {'values': {'current_temp': 38.605987548828125}, 'parameters': {}}
+        for index in (0, 1)
+    }
+    instance._last_snapshot['profile']['entities'].append(
+        {'path': 'mixer/0/value/current_temp', 'label': 'Current temp', 'domain': 'sensor'}
+    )
+    configs = discovery_payloads(instance)
+    for index in (0, 1):
+        config = configs[f'homeassistant/sensor/plumbox/mixer_{index}_value_current_temp/config']
+        assert config['unique_id'] == f'plumbox_mixer_{index}_value_current_temp'
+        assert config['state_topic'] == f'plumbox/entity/mixer/{index}/value/current_temp'
+        assert config['suggested_display_precision'] == 2
+        assert config['unit_of_measurement'] == '°C'
+        assert config['device_class'] == 'temperature'

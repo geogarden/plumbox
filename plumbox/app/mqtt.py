@@ -28,16 +28,37 @@ _MQTT_TEMPERATURES = {
 _MQTT_TEMPERATURE_PRECISION = {"exhaust_temp": 1, "outside_temp": 1, "current_temp": 2}
 
 
-def _mqtt_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
-    values = snapshot.get("values")
-    if not isinstance(values, dict):
-        return snapshot
+def _mqtt_temperature_key(path: str) -> str | None:
+    parts = path.split("/")
+    if len(parts) == 2 and parts[0] == "value" and parts[1] in _MQTT_TEMPERATURES:
+        return parts[1]
+    if len(parts) == 4 and parts[0] == "mixer" and parts[2:] == ["value", "current_temp"]:
+        return "current_temp"
+    return None
+
+
+def _rounded_temperature_values(values: dict[str, Any], precisions: dict[str, int]) -> dict[str, Any]:
     rounded = dict(values)
-    for key, precision in _MQTT_TEMPERATURE_PRECISION.items():
+    for key, precision in precisions.items():
         value = values.get(key)
         if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
             rounded[key] = round(float(value), precision)
-    return {**snapshot, "values": rounded}
+    return rounded
+
+
+def _mqtt_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
+    result = dict(snapshot)
+    values = snapshot.get("values")
+    if isinstance(values, dict):
+        result["values"] = _rounded_temperature_values(values, _MQTT_TEMPERATURE_PRECISION)
+    mixers = snapshot.get("mixers")
+    if isinstance(mixers, dict):
+        result["mixers"] = {
+            index: {**mixer, "values": _rounded_temperature_values(mixer["values"], {"current_temp": 2})}
+            if isinstance(mixer, dict) and isinstance(mixer.get("values"), dict) else mixer
+            for index, mixer in mixers.items()
+        }
+    return result
 
 ParameterWriter = Callable[[str, int, str, Any], Awaitable[dict[str, Any]]]
 PowerWriter = Callable[[bool], Awaitable[dict[str, Any]]]
@@ -321,7 +342,7 @@ class MqttPublisher:
         entities = []
         for entity in self._base_entities_for_snapshot(snapshot):
             path = str(entity.get("path") or "")
-            key = path.removeprefix("value/") if path.startswith("value/") else ""
+            key = _mqtt_temperature_key(path)
             if key in _MQTT_TEMPERATURES:
                 entity = {**entity, **_MQTT_TEMPERATURES[key], "unit": "°C", "device_class": "temperature"}
             entities.append(entity)
@@ -487,8 +508,9 @@ class MqttPublisher:
                 config["unit_of_measurement"] = entity["unit"]
             if entity.get("device_class"):
                 config["device_class"] = entity["device_class"]
-            if domain == "sensor" and path in {f"value/{key}" for key in _MQTT_TEMPERATURES}:
-                config["suggested_display_precision"] = _MQTT_TEMPERATURE_PRECISION[path.removeprefix("value/")]
+            temperature_key = _mqtt_temperature_key(path)
+            if domain == "sensor" and temperature_key is not None:
+                config["suggested_display_precision"] = _MQTT_TEMPERATURE_PRECISION[temperature_key]
             parameter = self._parameter_by_entity_path(snapshot, path)
             if parameter and domain in {"number", "select", "switch"}:
                 config["command_topic"] = f"{base}/command/{path}"

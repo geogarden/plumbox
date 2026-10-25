@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.35
+
+- objęto zaokrąglaniem do dwóch miejsc także temperaturę current_temp każdego mieszacza: kanały entity, raw i stan JSON,
+- Discovery temperatur mieszaczy określa precyzję 2, jednostkę °C i klasę temperatury; zachowano nazwy, tematy i unique_id,
+- poprawiono pominięcie odczytów mieszaczy w wersji 2.8.34; dane źródłowe panelu i parametry pozostają niezmienione.
+
 ## 2.8.34
 
 - temperatura kotła current_temp jest zaokrąglana do dwóch miejsc po przecinku we wszystkich kanałach MQTT i stanie JSON,
