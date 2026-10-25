@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.31
+
+- czujnik MQTT Exhaust temp otrzymał nazwę „PlumBox Temperatura spalin”,
+- temperatura spalin i temperatura zewnętrzna są publikowane z dokładnością do jednego miejsca po przecinku, także w kanałach value, raw, entity i stanie JSON,
+- Discovery obu czujników określa jednostkę °C, klasę temperatury oraz sugerowaną precyzję wyświetlania 1; zachowano tematy i unique_id.
+
 ## 2.8.30
 
 - dodano tryb Auto do wyboru trybu pracy kotła: Zima (0), Lato (1), Auto (2),

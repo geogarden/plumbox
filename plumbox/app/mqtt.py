@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import re
 import time
 from typing import Any, Awaitable, Callable
@@ -17,6 +18,24 @@ from .mappings import SENSOR_META
 _LOGGER = logging.getLogger(__name__)
 
 _FULL_STATE_HEARTBEAT_SECONDS = 60.0
+
+# Confirmed PyPlumIO sensor names. Presentation changes apply to MQTT only.
+_MQTT_TEMPERATURES = {
+    "exhaust_temp": {"label": "Temperatura spalin"},
+    "outside_temp": {},
+}
+
+
+def _mqtt_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
+    values = snapshot.get("values")
+    if not isinstance(values, dict):
+        return snapshot
+    rounded = dict(values)
+    for key in _MQTT_TEMPERATURES:
+        value = values.get(key)
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+            rounded[key] = round(float(value), 1)
+    return {**snapshot, "values": rounded}
 
 ParameterWriter = Callable[[str, int, str, Any], Awaitable[dict[str, Any]]]
 PowerWriter = Callable[[bool], Awaitable[dict[str, Any]]]
@@ -239,6 +258,7 @@ class MqttPublisher:
     async def publish(self, snapshot: dict[str, Any]) -> None:
         if not self._connected or not self._client:
             return
+        snapshot = _mqtt_snapshot(snapshot)
         self._last_snapshot = snapshot
         base = self.config.base_topic.rstrip("/")
         entities = self._entities_for_snapshot(snapshot)
@@ -296,6 +316,16 @@ class MqttPublisher:
             _LOGGER.exception("Publikacja MQTT nie powiodła się.")
 
     def _entities_for_snapshot(self, snapshot: dict[str, Any]) -> list[dict[str, Any]]:
+        entities = []
+        for entity in self._base_entities_for_snapshot(snapshot):
+            path = str(entity.get("path") or "")
+            key = path.removeprefix("value/") if path.startswith("value/") else ""
+            if key in _MQTT_TEMPERATURES:
+                entity = {**entity, **_MQTT_TEMPERATURES[key], "unit": "°C", "device_class": "temperature"}
+            entities.append(entity)
+        return entities
+
+    def _base_entities_for_snapshot(self, snapshot: dict[str, Any]) -> list[dict[str, Any]]:
         profile = snapshot.get("profile") if isinstance(snapshot.get("profile"), dict) else {}
         entities = profile.get("entities")
         if isinstance(entities, list) and self.profile.discovery_mode != "legacy_values":
@@ -455,6 +485,8 @@ class MqttPublisher:
                 config["unit_of_measurement"] = entity["unit"]
             if entity.get("device_class"):
                 config["device_class"] = entity["device_class"]
+            if domain == "sensor" and path in {f"value/{key}" for key in _MQTT_TEMPERATURES}:
+                config["suggested_display_precision"] = 1
             parameter = self._parameter_by_entity_path(snapshot, path)
             if parameter and domain in {"number", "select", "switch"}:
                 config["command_topic"] = f"{base}/command/{path}"
@@ -621,3 +653,4 @@ class MqttPublisher:
                 requested=requested,
                 message=str(exc),
             )
+

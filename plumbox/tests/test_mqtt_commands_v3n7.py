@@ -653,3 +653,53 @@ def test_every_mapped_plumbox_setting_is_exported_and_follows_risk_policy():
         if path.endswith("/ecomax_control"):
             expected_write = instance.config.allow_power_commands
         assert instance._command_allowed(path, item) is expected_write
+
+
+
+def test_temperature_payloads_are_rounded_in_all_mqtt_channels_without_mutating_snapshot():
+    instance = publisher(MqttConfig(enabled=True, home_assistant_discovery=False))
+    original = snapshot()
+    original['values'] = {'exhaust_temp': 128.126, 'outside_temp': -2.874, 'heating_temp': 67.1234}
+    asyncio.run(instance.publish(original))
+    topics = {topic: payload for topic, payload, _ in instance._client.calls}
+    for key, expected in [('exhaust_temp', '128.1'), ('outside_temp', '-2.9')]:
+        assert topics[f'plumbox/value/{key}'] == expected
+        assert topics[f'plumbox/raw/values/{key}'] == expected
+        assert topics[f'plumbox/entity/value/{key}'] == expected
+        assert json.loads(topics['plumbox/state'])['values'][key] == float(expected)
+    assert topics['plumbox/entity/value/heating_temp'] == '67.1234'
+    assert original['values'] == {'exhaust_temp': 128.126, 'outside_temp': -2.874, 'heating_temp': 67.1234}
+
+
+def test_mqtt_temperature_name_precision_and_identity_survive_existing_profile_labels():
+    instance = publisher(MqttConfig(enabled=True))
+    instance._last_snapshot['values'] = {'exhaust_temp': 128.126, 'outside_temp': -2.874}
+    instance._last_snapshot['profile']['entities'] += [
+        {'path': 'value/exhaust_temp', 'label': 'Exhaust temp', 'domain': 'sensor'},
+        {'path': 'value/outside_temp', 'label': 'Outside temperature', 'domain': 'sensor'},
+    ]
+    configs = discovery_payloads(instance)
+    for key in ('exhaust_temp', 'outside_temp'):
+        config = configs[f'homeassistant/sensor/plumbox/value_{key}/config']
+        assert config['unique_id'] == f'plumbox_value_{key}'
+        assert config['state_topic'] == f'plumbox/entity/value/{key}'
+        assert config['unit_of_measurement'] == '°C'
+        assert config['device_class'] == 'temperature'
+        assert config['suggested_display_precision'] == 1
+    assert configs['homeassistant/sensor/plumbox/value_exhaust_temp/config']['name'] == 'PlumBox Temperatura spalin'
+    assert configs['homeassistant/sensor/plumbox/value_outside_temp/config']['name'] == 'PlumBox Outside temperature'
+    assert instance._last_snapshot['profile']['entities'][-2]['label'] == 'Exhaust temp'
+
+
+def test_mqtt_temperature_zero_missing_and_whole_degrees():
+    instance = publisher(MqttConfig(enabled=True, home_assistant_discovery=False))
+    current = snapshot()
+    current['values'] = {'exhaust_temp': 128, 'outside_temp': 0}
+    asyncio.run(instance.publish(current))
+    topics = {topic: payload for topic, payload, _ in instance._client.calls}
+    assert topics['plumbox/entity/value/exhaust_temp'] == '128.0'
+    assert topics['plumbox/entity/value/outside_temp'] == '0.0'
+    current['values']['exhaust_temp'] = None
+    asyncio.run(instance.publish(current))
+    topics = {topic: payload for topic, payload, _ in instance._client.calls}
+    assert topics['plumbox/entity/value/exhaust_temp'] == ''
