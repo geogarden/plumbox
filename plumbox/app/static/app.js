@@ -11,6 +11,8 @@
     websocket: null,
     historyHours: 24,
     historyRows: [],
+    powerRuntime: null,
+    powerRuntimeLoadedAt: 0,
     overviewHistory: [],
     overviewHistoryRevision: 0,
     alarmRows: [],
@@ -505,6 +507,21 @@
     return finiteNumber(parameterValue("heating_target_temp", null));
   }
 
+  function formatRuntime(seconds) {
+    if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return "—";
+    const total = Math.max(0, Math.floor(Number(seconds)));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor(total % 3600 / 60);
+    return `${hours} h ${minutes} min ${total % 60} s`;
+  }
+
+  async function loadPowerRuntime() {
+    if (Date.now() - state.powerRuntimeLoadedAt < 30000) return;
+    try { state.powerRuntime = await api("/api/power-runtime"); }
+    catch { state.powerRuntime = null; }
+    state.powerRuntimeLoadedAt = Date.now();
+  }
+
   function hysteresisSummaryHtml() {
     const target = effectiveHeatingTarget();
     if (target === null) {
@@ -518,9 +535,11 @@
     const h1Threshold = target - h1;
     const restartThreshold = target - restartHysteresis;
 
-    const workMax = parameterValue("fuel_feeding_work_100", "—");
-    const workMid = parameterValue("fuel_feeding_work_50", "—");
-    const workMin = parameterValue("fuel_feeding_work_30", "—");
+    const runtime = state.powerRuntime;
+    const totals = runtime?.seconds;
+    const workMax = formatRuntime(totals?.["100"]);
+    const workMid = formatRuntime(totals?.["50"]);
+    const workMin = formatRuntime(totals?.["30"]);
     const currentTemp = finiteNumber(val("heating_temp", null));
 
     const threeLevels = h1 < h2;
@@ -543,24 +562,27 @@
           <div class="target-badge"><span>ZADANA</span><strong>${escapeHtml(fmt(target))}°C</strong></div>
         </div>
 
+        <p class="muted">Łączny czas pracy przy odczytanej mocy 100 / 50 / 30% · ostatnie 48 godzin.
+          ${totals ? `Zarejestrowano ${escapeHtml(formatRuntime(runtime.covered_seconds))} danych. Praca przy innej lub nieznanej mocy: ${escapeHtml(formatRuntime(runtime.unknown_work_seconds))}.` : "Brak zapisanych danych o czasie pracy."}
+          Przerwy w odczytach nie są doliczane. Progi temperatur poniżej opisują ustawienia H1/H2.</p>
         <div class="hysteresis-threshold-grid">
           <article class="threshold-card max">
             <span class="threshold-label">CZAS PRACY · MOC MAX</span>
-            <strong>${escapeHtml(fmt(workMax))} s</strong>
+            <strong>${escapeHtml(workMax)}</strong>
             <div>Praca poniżej <b>${escapeHtml(fmt(h2Threshold))}°C</b></div>
             <small>H2 = ${escapeHtml(fmt(h2))}°C</small>
           </article>
 
           <article class="threshold-card mid">
             <span class="threshold-label">CZAS PRACY · MOC ŚREDNIA</span>
-            <strong>${escapeHtml(fmt(workMid))} s</strong>
+            <strong>${escapeHtml(workMid)}</strong>
             <div>${threeLevels ? `Zakres <b>${escapeHtml(middleRange)}</b>` : "<b>Zakres mocy pośredniej jest pomijany</b>"}</div>
             <small>Próg H2: ${escapeHtml(fmt(h2Threshold))}°C</small>
           </article>
 
           <article class="threshold-card min">
             <span class="threshold-label">CZAS PRACY · MOC MINIMALNA</span>
-            <strong>${escapeHtml(fmt(workMin))} s</strong>
+            <strong>${escapeHtml(workMin)}</strong>
             <div>Od <b>${escapeHtml(fmt(h1Threshold))}°C</b> do temperatury zadanej</div>
             <small>H1 = ${escapeHtml(fmt(h1))}°C</small>
           </article>
@@ -1637,7 +1659,12 @@
       });
     }
     else if (["heating","water_heater","summer","mixer","kindling","supervision","burning_off","cleaning","protections"].includes(state.activeView)) content.innerHTML = sectionHtml(state.activeView);
-    else if (filteredViews[state.activeView]) content.innerHTML = filteredHtml(state.activeView);
+    else if (filteredViews[state.activeView]) {
+      const view = state.activeView;
+      if (view === "hysteresis") await loadPowerRuntime();
+      if (state.activeView !== view) return;
+      content.innerHTML = filteredHtml(view);
+    }
     else if (state.activeView === "alarms") content.innerHTML = await alarmsHtml();
     else if (state.activeView === "history") content.innerHTML = await historyHtml();
     else if (state.activeView === "statistics") {
@@ -1875,6 +1902,7 @@
         if (websocketStale) restartWebSocket();
         fetchSnapshot();
       }
+      if (state.activeView === "hysteresis") loadPowerRuntime().then(refreshHysteresisSummary);
       if (state.activeView === "statistics") render().catch(() => {});
       if (Date.now() - state.authCheckedAt > 30000) {
         const previousAccess = `${state.role}:${state.unlocked}`;

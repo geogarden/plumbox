@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.8.36
+
+- kafelki czasu pracy MAX / średnia / minimalna pokazują teraz sumę czasu przy odczytanej mocy 100 / 50 / 30% z ostatnich 48 godzin, zamiast ustawień czasu podawania pelletu,
+- obliczenia korzystają z pełnej zapisanej historii SQLite i stanu Praca; ponowne uruchomienie nie zeruje danych,
+- czas postoju, rozłączenia i długie luki nie są przypisywane do mocy; czas pracy przy innej lub nieznanej mocy jest pokazany osobno,
+- dodano oznaczenie okresu i pokrycia danych, zapis h/min/s oraz odświeżanie liczników co 30 sekund; brak danych pozostaje kreską.
+
 ## 2.8.35
 
 - objęto zaokrąglaniem do dwóch miejsc także temperaturę current_temp każdego mieszacza: kanały entity, raw i stan JSON,

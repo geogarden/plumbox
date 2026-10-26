@@ -240,6 +240,39 @@ class Database:
                 ).fetchall()
         return [{key: row[key] for key in row.keys() if key not in {"sample_rank", "sample_count"}} for row in rows]
 
+    async def power_runtime(self, since: datetime, until: datetime, max_age: float = 60) -> dict[str, Any]:
+        """Integrate recorded WORKING load levels; never infer them from temperatures."""
+        return await asyncio.to_thread(self._power_runtime_sync, since, until, max_age)
+
+    def _power_runtime_sync(self, since: datetime, until: datetime, max_age: float) -> dict[str, Any]:
+        since, until = self._aware_utc(since), self._aware_utc(until)
+        max_age = max(1.0, min(float(max_age), 300.0))
+        with self._connect() as db:
+            rows = db.execute(
+                "SELECT ts, boiler_load, state, connected FROM samples WHERE ts >= ? AND ts <= ? ORDER BY ts",
+                ((since - timedelta(seconds=max_age)).isoformat(), until.isoformat()),
+            ).fetchall()
+        samples = [(self._parse_sample_time(row['ts']), row) for row in rows]
+        samples = [(ts, row) for ts, row in samples if ts is not None]
+        seconds = {"100": 0.0, "50": 0.0, "30": 0.0}
+        covered, unknown = 0.0, 0.0
+        for index, (ts, row) in enumerate(samples):
+            end = samples[index + 1][0] if index + 1 < len(samples) else until
+            duration = (min(end, until, ts + timedelta(seconds=max_age)) - max(ts, since)).total_seconds()
+            if duration <= 0 or not row['connected'] or row['state'] is None:
+                continue
+            covered += duration
+            if row['state'] != 3:  # PyPlumIO DeviceState.WORKING
+                continue
+            load = row['boiler_load']
+            if load in (100, 50, 30):
+                seconds[str(int(load))] += duration
+            else:
+                unknown += duration
+        return {"since": since.isoformat(), "until": until.isoformat(),
+                "seconds": seconds if covered else None,
+                "covered_seconds": covered, "unknown_work_seconds": unknown}
+
     async def fuel_consumption_between(self, since: datetime, until: datetime) -> float | None:
         """Całkuje potwierdzony odczyt kg/h bez uzupełniania luk w historii.
 
@@ -345,3 +378,4 @@ class Database:
             db.execute("DELETE FROM audit WHERE ts < ?", (cutoff,))
             # Active and undated alarms are never purged.
             db.execute("DELETE FROM alarms WHERE active = 0 AND COALESCE(ended_at, started_at) < ?", (cutoff,))
+

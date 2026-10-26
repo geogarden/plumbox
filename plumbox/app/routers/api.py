@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -252,6 +252,15 @@ async def history(
     limit: int = Query(default=5000, ge=1, le=20000),
 ) -> dict[str, Any]:
     return {"rows": await state.database.history(hours=hours, limit=limit)}
+
+
+@router.get("/power-runtime")
+async def power_runtime() -> dict[str, Any]:
+    now = datetime.now(timezone.utc)
+    return await state.database.power_runtime(
+        now - timedelta(hours=48), now,
+        max_age=2 * state.config.history.sample_interval_seconds,
+    )
 
 
 @router.get("/summary")

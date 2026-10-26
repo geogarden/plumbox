@@ -1,0 +1,67 @@
+name: Publish PlumBox 2.8.36
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-2.8.36.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-2.8.36
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Prepare versioned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init source
+          git -C source remote add origin "https://github.com/${GH_REPO}.git"
+          git -C source fetch --depth=1 origin "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          grep -qx 'version: "2.8.36"' source/plumbox/config.yaml
+          git -C source archive --format=zip --prefix=plumbox/ HEAD:plumbox > plumbox-2.8.36.zip
+          unzip -t plumbox-2.8.36.zip
+          sha256sum plumbox-2.8.36.zip > plumbox-2.8.36.zip.sha256
+          cat > release-notes.md <<'NOTES'
+          ## PlumBox 2.8.36
+
+          - Naprawiono kafelki H1/H2: zamiast ustawień podajnika 4–5 s pokazują łączny czas pracy przy mocach 100%, 50% i 30% w ostatnich 48 godzinach.
+          - Czas jest obliczany z pełnej historii SQLite, także zapisanej przed aktualizacją, i wyświetlany jako godziny, minuty i sekundy.
+          - Uwzględniany jest wyłącznie stan Praca i odczytany poziom mocy. Rozłączenia i luki nie są doliczane; inna lub nieznana moc jest raportowana osobno.
+          - Widok pokazuje okres i pokrycie danych, brak danych jako kreskę oraz odświeża sumy co 30 sekund.
+
+          Walidacja: sumowanie wielu poziomów, postoje, rozłączenia, luki, restart, pełne 48 godzin bez limitu próbek wykresu i regresje interfejsu.
+
+          ### Aktualizacja
+          W Home Assistant odśwież sklep aplikacji i zaktualizuj PlumBox z repozytorium GitHub. Zachowaj dane i konfigurację aplikacji.
+
+          Paczka plumbox-2.8.36.zip zawiera folder plumbox do instalacji ręcznej. Plik .sha256 pozwala sprawdzić integralność pobranego archiwum.
+          NOTES
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.8.36 >/dev/null 2>&1; then
+            echo "Release v2.8.36 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.8.36 plumbox-2.8.36.zip plumbox-2.8.36.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "PlumBox 2.8.36" \
+            --notes-file release-notes.md \
+            --latest
+
+

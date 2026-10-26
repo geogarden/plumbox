@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, editorHtml, historyHtml, chartSeries};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, editorHtml, historyHtml, chartSeries};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -163,25 +163,24 @@ test('photo readouts update from snapshot and preserve missing sensor values', (
 });
 
 
-test('H1/H2 cards show feeder work times in seconds rather than unavailable boiler kW',()=>{
+test('H1/H2 cards show accumulated runtime instead of feeder settings',()=>{
   const p=panel();
   p.state.snapshot={values:{heating_target:75,heating_temp:67},parameters:{
-    fuel_feeding_work_100:{value:7.5},fuel_feeding_work_50:{value:5},fuel_feeding_work_30:{value:2},
-    boiler_power_100:{value:99},boiler_power_50:{value:88},boiler_power_30:{value:77}
+    fuel_feeding_work_100:{value:4},fuel_feeding_work_50:{value:4},fuel_feeding_work_30:{value:5}
   }};
+  p.state.powerRuntime={seconds:{'100':90061,'50':3605,'30':0},covered_seconds:100000,unknown_work_seconds:12};
   const html=p.hysteresisSummaryHtml();
-  for(const text of ['CZAS PRACY · MOC MAX','CZAS PRACY · MOC ŚREDNIA','CZAS PRACY · MOC MINIMALNA','7,5 s','5 s','2 s'])assert(html.includes(text),text);
-  assert(!html.includes(' kW'));
-  assert(!html.includes('99 s'));
+  for(const text of ['25 h 1 min 1 s','1 h 0 min 5 s','0 h 0 min 0 s','ostatnie 48 godzin'])assert(html.includes(text),text);
+  assert(!html.includes('<strong>4 s</strong>'));
+  assert(!html.includes('<strong>5 s</strong>'));
 });
 
-test('missing feeder times stay missing and a zero time is preserved',()=>{
+test('missing runtime is shown as missing rather than feeder time or zero',()=>{
   const p=panel();
-  p.state.snapshot={values:{heating_target:75},parameters:{fuel_feeding_work_100:{value:0},boiler_power_50:{value:11}}};
+  p.state.snapshot={values:{heating_target:75},parameters:{fuel_feeding_work_100:{value:4}}};
   const html=p.hysteresisSummaryHtml();
-  assert(html.includes('<strong>0 s</strong>'));
-  assert.equal((html.match(/<strong>— s<\/strong>/g)||[]).length,2);
-  assert(!html.includes('11 s'));
+  assert.equal((html.match(/<strong>—<\/strong>/g)||[]).length,3);
+  assert(html.includes('Brak zapisanych danych o czasie pracy'));
 });
 
 
@@ -214,4 +213,17 @@ test('temperature history chart and legend exclude the return series',async()=>{
   const html=await p.historyHtml();
   assert(!html.includes('return_temp'));assert(!html.includes('Powrót'));
   for(const label of ['Kocioł','CWU','Mieszacz'])assert(html.includes(label));
+});
+
+
+test('runtime cards load persisted totals from API and refresh after 30 seconds',async()=>{
+  let calls=0;
+  const p=panel(async url=>{assert(String(url).endsWith('/api/power-runtime'));calls++;return json({seconds:{'100':calls*3600,'50':0,'30':0},covered_seconds:7200,unknown_work_seconds:0});});
+  p.state.snapshot={values:{heating_target:75},parameters:{}};
+  await p.loadPowerRuntime();
+  assert(p.hysteresisSummaryHtml().includes('1 h 0 min 0 s'));
+  await p.loadPowerRuntime();assert.equal(calls,1);
+  p.state.powerRuntimeLoadedAt=Date.now()-31000;
+  await p.loadPowerRuntime();assert.equal(calls,2);
+  assert(p.hysteresisSummaryHtml().includes('2 h 0 min 0 s'));
 });
