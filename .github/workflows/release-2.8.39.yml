@@ -1,0 +1,67 @@
+name: Publish PlumBox 2.8.39
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-2.8.39.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-2.8.39
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Prepare versioned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init source
+          git -C source remote add origin "https://github.com/${GH_REPO}.git"
+          git -C source fetch --depth=1 origin "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          grep -qx 'version: "2.8.39"' source/plumbox/config.yaml
+          git -C source archive --format=zip --prefix=plumbox/ HEAD:plumbox > plumbox-2.8.39.zip
+          unzip -t plumbox-2.8.39.zip
+          sha256sum plumbox-2.8.39.zip > plumbox-2.8.39.zip.sha256
+          cat > release-notes.md <<'NOTES'
+          ## PlumBox 2.8.39
+
+          - W menu Mieszacz dodano cztery nastawy: sterowanie pogodowe, współczynnik pogodowy, praca od termostatu i praca latem.
+          - W CO i kocioł dodano nastawy sondy lambda: regulacja, zakres korekty, zadany tlen dla mocy MAX/średniej/minimalnej i korekta tlenu Fuzzy Logic.
+          - Nastawy pojawiają się tylko, gdy udostępnia je sterownik. Zakresy, jednostki i kodowanie pochodzą z PyPlumIO; zachowano istniejące uprawnienia zapisu parametrów serwisowych.
+          - Usunięto Powiadomienia na telefon z menu bocznego.
+
+          Walidacja: rzeczywiste opisy parametrów PyPlumIO, zakresy i kodowanie, rozdzielenie mieszaczy, widoki CO/Mieszacz i usunięcie pozycji menu.
+
+          ### Aktualizacja
+          W Home Assistant odśwież sklep aplikacji i zaktualizuj PlumBox z repozytorium GitHub. Zachowaj dane i konfigurację aplikacji.
+
+          Paczka plumbox-2.8.39.zip zawiera folder plumbox do instalacji ręcznej. Plik .sha256 pozwala sprawdzić integralność pobranego archiwum.
+          NOTES
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.8.39 >/dev/null 2>&1; then
+            echo "Release v2.8.39 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.8.39 plumbox-2.8.39.zip plumbox-2.8.39.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "PlumBox 2.8.39" \
+            --notes-file release-notes.md \
+            --latest
+
+

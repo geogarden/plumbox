@@ -290,3 +290,17 @@ test('live history retains a full day instead of truncating to 400 recent change
   p.state.snapshot.timestamp=new Date(now+1000).toISOString();p.appendOverviewTemperatureSample();
   assert.equal(p.state.overviewHistory.length,2001);
 });
+
+test('weather options are in Mixer and lambda options are in CO and boiler',()=>{
+  const p=panel();p.state.unlocked=true;
+  const mixer=['weather_control','weather_factor','thermostat_operation','summer_work'];
+  const lambda=['lambda_control','lambda_correction_range','oxygen_100','oxygen_50','oxygen_30','fuzzy_logic_oxygen_correction'];
+  const parameter=(name,scope,section)=>({name,label:name,scope,section,index:0,value:1,native_value:1,min:0,max:100,step:1,risk:scope==='mixer'?'safe':'advanced',kind:name==='weather_factor'||name!=='lambda_control'&&scope==='ecomax'?'number':'switch',writable:true});
+  p.state.snapshot={parameters:Object.fromEntries(lambda.map(name=>[name,parameter(name,'ecomax','heating')])),mixers:{'0':{parameters:Object.fromEntries(mixer.map(name=>[name,parameter(name,'mixer','mixer')]))}}};
+  const heating=p.sectionHtml('heating'),mix=p.sectionHtml('mixer');
+  for(const name of mixer){assert(mix.includes(`data-param-name="${name}"`));assert(!heating.includes(`data-param-name="${name}"`));}
+  for(const name of lambda){assert(heating.includes(`data-param-name="${name}"`));assert(!mix.includes(`data-param-name="${name}"`));}
+  const index=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
+  assert(!index.includes('data-view="notifications"'));
+  assert(!index.includes('Powiadomienia na telefon'));
+});

@@ -118,6 +118,10 @@ ECONET_USER_PARAMETER_NAMES = {
     "mixer_target_temp:mixer",
     "heating_curve:mixer",
     "heating_curve_shift:mixer",
+    "weather_control:mixer",
+    "weather_factor:mixer",
+    "thermostat_operation:mixer",
+    "summer_work:mixer",
     "thermostat_mode:mixer",
     "thermostat_decrease_target_temp:mixer",
     "summer_mode",
@@ -481,6 +485,63 @@ PARAMETER_META: dict[str, dict[str, Any]] = {
         "section": "protections",
         "risk": "advanced",
         "special_zero": True,
+    },
+
+
+    # Sterowanie pogodowe mieszacza i regulacja ecoLAMBDA.
+    "weather_control:mixer": {
+        "label": "Sterowanie pogodowe mieszacza",
+        "section": "mixer",
+        "risk": "safe",
+        "kind": "switch",
+    },
+    "weather_factor:mixer": {
+        "label": "Współczynnik pogodowy mieszacza",
+        "section": "mixer",
+        "risk": "safe",
+    },
+    "thermostat_operation:mixer": {
+        "label": "Praca mieszacza od termostatu",
+        "section": "mixer",
+        "risk": "safe",
+        "kind": "switch",
+    },
+    "summer_work:mixer": {
+        "label": "Praca mieszacza latem",
+        "section": "mixer",
+        "risk": "safe",
+        "kind": "switch",
+    },
+    "lambda_control": {
+        "label": "Sonda lambda — regulacja",
+        "section": "heating",
+        "risk": "advanced",
+        "kind": "switch",
+    },
+    "lambda_correction_range": {
+        "label": "Sonda lambda — zakres korekty",
+        "section": "heating",
+        "risk": "advanced",
+    },
+    "oxygen_100": {
+        "label": "Sonda lambda — zadany tlen, moc MAX (100%)",
+        "section": "heating",
+        "risk": "advanced",
+    },
+    "oxygen_50": {
+        "label": "Sonda lambda — zadany tlen, moc średnia (50%)",
+        "section": "heating",
+        "risk": "advanced",
+    },
+    "oxygen_30": {
+        "label": "Sonda lambda — zadany tlen, moc minimalna (30%)",
+        "section": "heating",
+        "risk": "advanced",
+    },
+    "fuzzy_logic_oxygen_correction": {
+        "label": "Sonda lambda — korekta tlenu Fuzzy Logic",
+        "section": "heating",
+        "risk": "advanced",
     },
 
     # Mieszacz.

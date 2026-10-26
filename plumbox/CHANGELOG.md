@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.39
+
+- dodano do menu Mieszacz: sterowanie pogodowe, współczynnik pogodowy, pracę od termostatu i pracę latem,
+- do CO i kocioł dodano nastawy ecoLAMBDA: regulację, zakres korekty, zadany tlen dla mocy 100/50/30% i korektę tlenu Fuzzy Logic; zachowano serwisowe uprawnienia zapisu oraz natywne skale i zakresy,
+- usunięto pozycję Powiadomienia na telefon z menu bocznego.
+
 ## 2.8.38
 
 - główny wykres historii temperatur obejmuje ostatnie 24 godziny,
