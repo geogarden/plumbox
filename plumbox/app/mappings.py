@@ -116,6 +116,8 @@ ECONET_USER_PARAMETER_NAMES = {
     "water_heater_hysteresis",
     "water_heater_disinfection",
     "mixer_target_temp:mixer",
+    "heating_curve:mixer",
+    "heating_curve_shift:mixer",
     "thermostat_mode:mixer",
     "thermostat_decrease_target_temp:mixer",
     "summer_mode",
@@ -482,6 +484,16 @@ PARAMETER_META: dict[str, dict[str, Any]] = {
     },
 
     # Mieszacz.
+    "heating_curve:mixer": {
+        "label": "Krzywa grzewcza mieszacza",
+        "section": "mixer",
+        "risk": "safe",
+    },
+    "heating_curve_shift:mixer": {
+        "label": "Przesunięcie krzywej grzewczej mieszacza",
+        "section": "mixer",
+        "risk": "safe",
+    },
     "mixer_target_temp": {
         "label": "Temperatura zadana obiegu grzewczego",
         "section": "mixer",

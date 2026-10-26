@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.37
+
+- do menu Mieszacz dodano krzywą grzewczą oraz przesunięcie krzywej jako nastawy użytkowe,
+- wartości, zakresy, krok 0,1 krzywej i kodowanie przesunięcia pochodzą z PyPlumIO i sterownika; zachowano wybór konkretnego mieszacza i dotychczasowe wymagania zapisu.
+
 ## 2.8.36
 
 - kafelki czasu pracy MAX / średnia / minimalna pokazują teraz sumę czasu przy odczytanej mocy 100 / 50 / 30% z ostatnich 48 godzin, zamiast ustawień czasu podawania pelletu,

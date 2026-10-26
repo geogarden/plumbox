@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, editorHtml, historyHtml, chartSeries};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, sectionHtml, editorHtml, historyHtml, chartSeries};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -226,4 +226,22 @@ test('runtime cards load persisted totals from API and refresh after 30 seconds'
   p.state.powerRuntimeLoadedAt=Date.now()-31000;
   await p.loadPowerRuntime();assert.equal(calls,2);
   assert(p.hysteresisSummaryHtml().includes('2 h 0 min 0 s'));
+});
+
+
+test('mixer menu shows separate heating curve editors per mixer',()=>{
+  const p=panel();p.state.unlocked=true;p.state.activeView='mixer';
+  p.state.snapshot={parameters:{},mixers:{}};
+  for(const index of [0,2])p.state.snapshot.mixers[index]={parameters:{
+    heating_curve:{name:'heating_curve',label:'Krzywa grzewcza mieszacza',section:'mixer',scope:'mixer',index,access:'user',risk:'safe',writable:true,kind:'number',value:1.2,min:0,max:4,step:0.1},
+    heating_curve_shift:{name:'heating_curve_shift',label:'Przesunięcie krzywej grzewczej mieszacza',section:'mixer',scope:'mixer',index,access:'user',risk:'safe',writable:true,kind:'number',value:-5,min:-20,max:20,step:1,unit:'°C'}
+  }};
+  const html=p.sectionHtml('mixer');
+  for(const index of [0,2]){
+    assert(html.includes(`data-save-parameter="mixer-${index}-heating-curve"`));
+    assert(html.includes(`data-save-parameter="mixer-${index}-heating-curve-shift"`));
+  }
+  assert(html.includes('step="0.1"'));
+  assert(html.includes('value="-5"'));
+  assert(html.includes('Przesunięcie krzywej grzewczej mieszacza'));
 });

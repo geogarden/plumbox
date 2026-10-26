@@ -1,0 +1,66 @@
+name: Publish PlumBox 2.8.37
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-2.8.37.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-2.8.37
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Prepare versioned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init source
+          git -C source remote add origin "https://github.com/${GH_REPO}.git"
+          git -C source fetch --depth=1 origin "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          grep -qx 'version: "2.8.37"' source/plumbox/config.yaml
+          git -C source archive --format=zip --prefix=plumbox/ HEAD:plumbox > plumbox-2.8.37.zip
+          unzip -t plumbox-2.8.37.zip
+          sha256sum plumbox-2.8.37.zip > plumbox-2.8.37.zip.sha256
+          cat > release-notes.md <<'NOTES'
+          ## PlumBox 2.8.37
+
+          - Do menu Mieszacz dodano nastawy Krzywa grzewcza mieszacza i Przesunięcie krzywej grzewczej mieszacza.
+          - Parametry pojawiają się dla mieszaczy, które udostępniają je w sterowniku. Zachowano indeks każdego mieszacza, rzeczywiste zakresy oraz krok krzywej 0,1.
+          - Przesunięcie jest pokazywane w °C; kodowanie realizuje PyPlumIO. Zapis korzysta z istniejącej ścieżki i odblokowania sterowania.
+
+          Walidacja: rzeczywiste opisy parametrów PyPlumIO, serializacja i kodowanie wartości dodatnich/ujemnych oraz widok menu dla wielu mieszaczy.
+
+          ### Aktualizacja
+          W Home Assistant odśwież sklep aplikacji i zaktualizuj PlumBox z repozytorium GitHub. Zachowaj dane i konfigurację aplikacji.
+
+          Paczka plumbox-2.8.37.zip zawiera folder plumbox do instalacji ręcznej. Plik .sha256 pozwala sprawdzić integralność pobranego archiwum.
+          NOTES
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.8.37 >/dev/null 2>&1; then
+            echo "Release v2.8.37 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.8.37 plumbox-2.8.37.zip plumbox-2.8.37.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "PlumBox 2.8.37" \
+            --notes-file release-notes.md \
+            --latest
+
+
