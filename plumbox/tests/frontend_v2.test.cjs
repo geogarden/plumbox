@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; updateSparks = () => {}; appendOverviewTemperatureSample = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, sectionHtml, editorHtml, historyHtml, chartSeries};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -244,4 +244,49 @@ test('mixer menu shows separate heating curve editors per mixer',()=>{
   assert(html.includes('step="0.1"'));
   assert(html.includes('value="-5"'));
   assert(html.includes('Przesunięcie krzywej grzewczej mieszacza'));
+});
+
+
+test('overview requests 24 hours of persisted history and removes remote footer',async()=>{
+  const calls=[];const now=Date.now();
+  const p=panel(async url=>{calls.push(String(url));return json(String(url).includes('/api/history?')?{rows:[{ts:new Date(now-13*3600000).toISOString(),heating_temp:67}]}:{})});
+  p.state.snapshot={connected:true,timestamp:new Date(now).toISOString(),values:{heating_temp:68},mixers:{}};
+  await p.loadOverviewExtras();
+  assert(calls.some(url=>url.includes('/api/history?hours=24&limit=3000')));
+  assert(p.state.overviewHistory.some(row=>Date.parse(row.ts)<now-12*3600000));
+  const html=p.overviewHtml();
+  assert(html.includes('HISTORIA TEMPERATUR · OSTATNIE 24 GODZINY'));
+  assert.equal((html.match(/Ostatnie 12 godzin/g)||[]).length,6);
+  assert(!html.includes('remote-card'));
+  assert(!html.includes('DOSTĘP ZDALNY'));
+});
+
+test('all six small charts use 12 hour timestamps and retain gaps and zero',()=>{
+  const p=panel(),now=Date.now();
+  for(const key of ['feeder_temp','boiler_load','fan_power','mixer_temp','water_heater_temp','fuel_level']){
+    p.state.overviewHistory=[
+      {ts:new Date(now-13*3600000).toISOString(),[key]:999},
+      {ts:new Date(now-3600000).toISOString(),[key]:0,connected:1},
+      {ts:new Date(now-3570000).toISOString(),[key]:1,connected:1},
+      {ts:new Date(now-3540000).toISOString(),[key]:null,connected:1},
+      {ts:new Date(now-3510000).toISOString(),[key]:2,connected:1}
+    ];
+    const svg=p.sparklineSvg(key,'red',30);
+    assert.equal((svg.match(/<polyline/g)||[]).length,1);
+    assert.equal((svg.match(/<circle/g)||[]).length,1);
+    assert(svg.includes('165.0,27.0'),key);
+    p.state.overviewHistory=[{ts:new Date(now).toISOString(),[key]:null}];
+    assert(p.sparklineSvg(key,'red').includes('Brak historii'));
+  }
+});
+
+test('live history retains a full day instead of truncating to 400 recent changes',()=>{
+  const p=panel(),now=Math.floor(Date.now()/30000)*30000;
+  p.state.overviewHistory=Array.from({length:2000},(_,i)=>({ts:new Date(now-(2000-i)*30000).toISOString(),heating_temp:67}));
+  p.state.snapshot={connected:true,timestamp:new Date(now).toISOString(),values:{heating_temp:67,fuel_level:0}};
+  p.appendOverviewTemperatureSample();
+  assert.equal(p.state.overviewHistory.length,2001);
+  assert.equal(p.state.overviewHistory.at(-1).fuel_level,0);
+  p.state.snapshot.timestamp=new Date(now+1000).toISOString();p.appendOverviewTemperatureSample();
+  assert.equal(p.state.overviewHistory.length,2001);
 });

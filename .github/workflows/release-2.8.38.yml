@@ -1,0 +1,68 @@
+name: Publish PlumBox 2.8.38
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-2.8.38.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-2.8.38
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Prepare versioned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init source
+          git -C source remote add origin "https://github.com/${GH_REPO}.git"
+          git -C source fetch --depth=1 origin "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          grep -qx 'version: "2.8.38"' source/plumbox/config.yaml
+          git -C source archive --format=zip --prefix=plumbox/ HEAD:plumbox > plumbox-2.8.38.zip
+          unzip -t plumbox-2.8.38.zip
+          sha256sum plumbox-2.8.38.zip > plumbox-2.8.38.zip.sha256
+          cat > release-notes.md <<'NOTES'
+          ## PlumBox 2.8.38
+
+          - Historia temperatur na stronie głównej obejmuje ostatnie 24 godziny.
+          - Małe wykresy: podajnik, obciążenie, wentylator, mieszacz, CWU i poziom paliwa obejmują ostatnie 12 godzin zapisanej historii. Nie ograniczają się do ostatnich 34 odczytów przeglądarki.
+          - Wykresy zachowują rzeczywistą oś czasu, braki danych i rozłączenia. Odczyty historyczne odtwarzają się po odświeżeniu strony.
+          - Poziom paliwa jest od tej wersji zapisywany w historii. Starsze wpisy pozostają bez tej wartości; dotychczasowe dane są zachowane.
+          - Usunięto dolną stopkę Sieć lokalna / PlumBox / Panel WWW / VPN / Dostęp zdalny.
+
+          Walidacja: migracja istniejącej bazy, zapis poziomu paliwa 0%, zakresy 24/12 godzin, pełna dobowa historia przy aktualizacji na żywo, przerwy w danych i usunięcie stopki.
+
+          ### Aktualizacja
+          W Home Assistant odśwież sklep aplikacji i zaktualizuj PlumBox z repozytorium GitHub. Zachowaj dane i konfigurację aplikacji.
+
+          Paczka plumbox-2.8.38.zip zawiera folder plumbox do instalacji ręcznej. Plik .sha256 pozwala sprawdzić integralność pobranego archiwum.
+          NOTES
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.8.38 >/dev/null 2>&1; then
+            echo "Release v2.8.38 already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.8.38 plumbox-2.8.38.zip plumbox-2.8.38.zip.sha256 \
+            --target "$SOURCE_SHA" \
+            --title "PlumBox 2.8.38" \
+            --notes-file release-notes.md \
+            --latest
+
+

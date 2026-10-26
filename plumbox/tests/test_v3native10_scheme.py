@@ -10,8 +10,8 @@ def test_installation_scheme_is_registered_as_a_native_view():
 
     assert 'data-view="installation"' in index
     assert "Schemat instalacji" in index
-    assert 'scheme.css?v=gptsol-69' in index
-    assert 'app.js?v=gptsol-69' in index
+    assert 'scheme.css?v=gptsol-70' in index
+    assert 'app.js?v=gptsol-70' in index
     assert 'installation: "SCHEMAT INSTALACJI"' in script
     assert "installationSchemeHtml" in script
     assert "UKŁAD DEKLAROWANY" in script
@@ -25,7 +25,6 @@ def test_scheme_uses_controller_snapshot_instead_of_demo_modes():
         "state_label",
         "heating_pump",
         "water_heater_pump",
-        "optical_temp",
         "feeder",
         "mixers",
     ):

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.8.38
+
+- główny wykres historii temperatur obejmuje ostatnie 24 godziny,
+- wykresy podajnika, obciążenia, wentylatora, mieszacza, CWU i poziomu paliwa korzystają z ostatnich 12 godzin zapisanej historii, zamiast 34 próbek sesji przeglądarki; zachowują rzeczywistą oś czasu i przerwy w odczytach,
+- rozpoczęto zapisywanie poziomu paliwa w SQLite; migracja zachowuje dotychczasową historię, a stare wpisy nie otrzymują wymyślonych wartości poziomu,
+- usunięto dolną planszę Sieć lokalna / PlumBox / Panel WWW / VPN / Dostęp zdalny ze strony głównej.
+
 ## 2.8.37
 
 - do menu Mieszacz dodano krzywą grzewczą oraz przesunięcie krzywej jako nastawy użytkowe,

@@ -57,6 +57,7 @@ class Database:
                     boiler_load REAL,
                     fan_power REAL,
                     fuel_consumption REAL,
+                    fuel_level REAL,
                     state INTEGER,
                     connected INTEGER
                 );
@@ -90,6 +91,10 @@ class Database:
                 """
             )
 
+            sample_columns = {row[1] for row in db.execute("PRAGMA table_info(samples)")}
+            if "fuel_level" not in sample_columns:
+                db.execute("ALTER TABLE samples ADD COLUMN fuel_level REAL")
+
             # Migracja zachowuje dotychczasowe wpisy audytu.
             columns = {row[1] for row in db.execute("PRAGMA table_info(audit)")}
             if "actor" not in columns:
@@ -112,8 +117,8 @@ class Database:
                 INSERT OR REPLACE INTO samples (
                     ts, heating_temp, return_temp, water_heater_temp,
                     feeder_temp, mixer_temp, boiler_power, boiler_load,
-                    fan_power, fuel_consumption, state, connected
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    fan_power, fuel_consumption, fuel_level, state, connected
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     ts,
@@ -126,6 +131,7 @@ class Database:
                     values.get("boiler_load"),
                     values.get("fan_power"),
                     values.get("fuel_consumption"),
+                    values.get("fuel_level"),
                     integer_or_none(values.get("state")),
                     int(bool(snapshot.get("connected"))),
                 ),

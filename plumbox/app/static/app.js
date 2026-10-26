@@ -19,7 +19,6 @@
     fuelToday: null,
     overviewExtrasLoading: false,
     overviewExtrasLoadedAt: 0,
-    sparks: {},
     pendingWrite: null,
     parameterDrafts: new Map(),
     hiddenSeries: new Set(),
@@ -415,62 +414,82 @@
     render();
   }
 
-  function pushSpark(key, value) {
-    const numeric = finiteNumber(value);
-    if (numeric === null) return;
-    if (!state.sparks[key]) state.sparks[key] = [];
-    state.sparks[key].push(numeric);
-    if (state.sparks[key].length > 34) state.sparks[key].shift();
-  }
-
   function updateSparks() {
-    ["heating_temp", "return_temp", "water_heater_temp", "mixer_temp", "feeder_temp", "fan_power", "optical_temp", "boiler_power", "boiler_load", "fuel_consumption", "fuel_level"].forEach((key) => {
-      if (key === "mixer_temp") pushSpark(key, state.snapshot?.mixers?.["0"]?.values?.current_temp);
-      else pushSpark(key, val(key, null));
-    });
+    appendOverviewTemperatureSample();
   }
 
   function currentTemperatureHistoryRow() {
     if (!state.snapshot) return null;
     const mixer = state.snapshot?.mixers?.["0"]?.values || {};
-    const row = {
+    return {
       ts: state.snapshot.timestamp || new Date().toISOString(),
+      connected: state.snapshot.connected ? 1 : 0,
       heating_temp: finiteNumber(val("heating_temp", null)),
       return_temp: finiteNumber(val("return_temp", null)),
       water_heater_temp: finiteNumber(val("water_heater_temp", null)),
       mixer_temp: finiteNumber(mixer.current_temp),
+      feeder_temp: finiteNumber(val("feeder_temp", null)),
+      boiler_load: finiteNumber(val("boiler_load", null)),
+      fan_power: finiteNumber(val("fan_power", null)),
+      fuel_level: finiteNumber(val("fuel_level", null)),
     };
-    return [row.heating_temp, row.return_temp, row.water_heater_temp, row.mixer_temp]
-      .some((value) => value !== null) ? row : null;
   }
 
   function appendOverviewTemperatureSample() {
     const row = currentTemperatureHistoryRow();
     if (!row) return false;
+    const timestamp = Date.parse(row.ts);
+    if (!Number.isFinite(timestamp)) return false;
     const rows = state.overviewHistory;
     const last = rows.length ? rows[rows.length - 1] : null;
-    const keys = ["heating_temp", "return_temp", "water_heater_temp", "mixer_temp"];
-    if (last && keys.every((key) => finiteNumber(last[key]) === row[key])) return false;
-    rows.push(row);
-    if (rows.length > 400) rows.splice(0, rows.length - 400);
+    const lastTime = last ? Date.parse(last.ts) : NaN;
+    if (Number.isFinite(lastTime) && timestamp < lastTime) return false;
+    // Keep one live point per 30-second interval, including unchanged readings.
+    if (last && Math.floor(lastTime / 30000) === Math.floor(timestamp / 30000)) rows[rows.length - 1] = row;
+    else rows.push(row);
+    const since = Date.now() - 24 * 3600000;
+    while (rows.length && Date.parse(rows[0].ts) < since) rows.shift();
+    if (rows.length > 4000) rows.splice(0, rows.length - 4000);
     state.overviewHistoryRevision += 1;
     return true;
   }
 
+  function sparklineSvg(key, color, height = 50) {
+    const until = Date.now(), since = until - 12 * 3600000;
+    const data = state.overviewHistory.map(row => ({time: Date.parse(row.ts),
+      value: row.connected === 0 || row.connected === false ? null : finiteNumber(row[key])
+    })).filter(row => Number.isFinite(row.time) && row.time >= since && row.time <= until);
+    const values = data.filter(row => row.value !== null).map(row => row.value);
+    if (!values.length) return '<div class="sparkline sparkline-empty">Brak historii</div>';
+    const width = 180, min = Math.min(...values), max = Math.max(...values), range = Math.max(1, max - min);
+    const segments = [];
+    let current = [], previous = null;
+    for (const row of data) {
+      if (row.value === null || (previous !== null && row.time - previous > 300000)) {
+        if (current.length) segments.push(current);
+        current = [];
+      }
+      if (row.value !== null) current.push([
+        ((row.time - since) / (until - since) * width).toFixed(1),
+        (height - ((row.value - min) / range) * (height - 7) - 3).toFixed(1)
+      ]);
+      previous = row.time;
+    }
+    if (current.length) segments.push(current);
+    return `<svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">${segments.map(points => points.length === 1
+      ? `<circle cx="${points[0][0]}" cy="${points[0][1]}" r="1.5" fill="${color}"/>`
+      : `<polyline points="${points.map(p => p.join(",")).join(" ")}" fill="none" stroke="${color}" stroke-width="1.7" vector-effect="non-scaling-stroke"/>`).join("")}</svg>`;
+  }
+
   function sparkline(key, color, height = 50) {
-    const data = state.sparks[key] || [];
-    if (data.length < 2) return `<div class="sparkline sparkline-empty">Brak historii</div>`;
-    const width = 180;
-    const min = Math.min(...data);
-    const max = Math.max(...data);
-    const range = Math.max(1, max - min);
-    const points = data.map((number, index) => {
-      const x = index * width / Math.max(1, data.length - 1);
-      const y = height - ((number - min) / range) * (height - 7) - 3;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(" ");
-    const id = `${key}-${Math.random().toString(36).slice(2, 7)}`;
-    return `<svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".28"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${height} ${points} ${width},${height}" fill="url(#${id})"></polygon><polyline points="${points}" fill="none" stroke="${color}" stroke-width="1.7" vector-effect="non-scaling-stroke"></polyline></svg>`;
+    return `<div class="status-metric-note">Ostatnie 12 godzin</div><div data-spark-key="${key}" data-spark-color="${color}" data-spark-height="${height}">${sparklineSvg(key, color, height)}</div>`;
+  }
+
+  function refreshOverviewSparks() {
+    document.querySelectorAll("[data-spark-key]").forEach(node => {
+      if (!node.dataset?.sparkKey) return;
+      node.innerHTML = sparklineSvg(node.dataset.sparkKey, node.dataset.sparkColor, Number(node.dataset.sparkHeight));
+    });
   }
 
   function progress(value) {
@@ -911,13 +930,13 @@
         </div>
 
         <div class="bottom-row bottom-row-full">
-          <article class="card history-card"><div class="panel-title">HISTORIA TEMPERATUR · OSTATNIE 6 GODZIN</div>${chartLegendHtml(overviewChartSeries())}<div class="history-wrap"><canvas id="overviewHistoryCanvas"></canvas></div></article>
+          <article class="card history-card"><div class="panel-title">HISTORIA TEMPERATUR · OSTATNIE 24 GODZINY</div>${chartLegendHtml(overviewChartSeries())}<div class="history-wrap"><canvas id="overviewHistoryCanvas"></canvas></div></article>
         </div>
       </div>
 
     </div>
 
-    <article class="card remote-card"><div class="remote-content"><div class="remote-node"><div class="remote-icon">⌂</div><strong>SIEĆ LOKALNA</strong><small>Adres przydziela instalacja</small></div><div class="remote-node"><div class="remote-icon"><img src="assets/icon.svg" alt=""></div><strong>PlumBox</strong><small>Lokalna bramka</small></div><div class="remote-node"><div class="remote-icon">◎</div><strong>PANEL WWW</strong><small>Przeglądarka w sieci lokalnej</small></div><div class="remote-node"><div class="remote-icon">⬡</div><strong>VPN</strong><small>Tylko po skonfigurowaniu</small></div><div class="remote-node"><div class="remote-icon">▣</div><strong>DOSTĘP ZDALNY</strong><small>Zależy od instalacji</small></div></div></article>`;
+`;
   }
 
   function parametersForSection(section) {
@@ -1203,12 +1222,14 @@
     }
     state.overviewExtrasLoading = true;
     const [history, alarms, summary] = await Promise.all([
-      api("/api/history?hours=6&limit=400").catch(() => ({ rows: [] })),
+      api("/api/history?hours=24&limit=3000").catch(() => ({ rows: state.overviewHistory })),
       api("/api/alarms?limit=5").catch(() => ({ rows: [] })),
       api("/api/summary").catch(() => ({ fuel_today_kg: null })),
     ]);
     state.overviewHistory = history.rows || [];
+    state.overviewHistoryRevision += 1;
     appendOverviewTemperatureSample();
+    refreshOverviewSparks();
     state.alarmRows = alarms.rows || [];
     state.fuelToday = finiteNumber(summary.fuel_today_kg);
     state.overviewExtrasLoading = false;
