@@ -30,12 +30,12 @@ function panel(fetchImpl, fastTimers = false) {
     localStorage: {getItem:k=>storage.get(k)||null, setItem:(k,v)=>storage.set(k,v), removeItem:k=>storage.delete(k)},
     document: {getElementById:element, querySelectorAll:()=>editors, visibilityState:'visible'},
     location:{href:'https://ha.example/api/hassio_ingress/abc/',protocol:'https:'},
-    URL, Headers, AbortController, Date, WebSocket:Socket, getComputedStyle:()=>({getPropertyValue:()=>""}),
+    window:{devicePixelRatio:1}, URL, Headers, AbortController, Date, WebSocket:Socket, getComputedStyle:()=>({getPropertyValue:()=>""}),
     fetch:fetchImpl || (async()=>new Response(JSON.stringify({connected:true}),{headers:{'Content-Type':'application/json'}})),
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -303,4 +303,32 @@ test('weather options are in Mixer and lambda options are in CO and boiler',()=>
   const index=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
   assert(!index.includes('data-view="notifications"'));
   assert(!index.includes('Powiadomienia na telefon'));
+});
+
+
+test('history canvas draws aligned time labels below plot and reduces density on phones',()=>{
+  const p=panel(),rows=Array.from({length:49},(_,i)=>({ts:new Date(Date.UTC(2026,9,26,18)+i*1800000).toISOString(),heating_temp:65+i%6}));
+  function draw(width,compact=false){
+    const labels=[],context={fillText:(text,x,y)=>labels.push({text,x,y})};
+    for(const name of ['setTransform','clearRect','beginPath','moveTo','lineTo','stroke','save','restore'])context[name]=()=>{};
+    const canvas={getBoundingClientRect:()=>({width,height:300}),getContext:()=>context,__chartArgs:{rows,series:[['heating_temp','#f80','Kocioł']],compact}};
+    p.paintLineChart(canvas,null);
+    return {labels:labels.filter(l=>l.y>canvas.__layout.pad.top+canvas.__layout.plotH),layout:canvas.__layout};
+  }
+  const desktop=draw(736),phone=draw(320);
+  const times=labels=>labels.filter(l=>/^\d{2}:\d{2}$/.test(l.text));
+  assert.equal(times(desktop.labels).length,7);
+  assert.equal(times(phone.labels).length,3);
+  assert.equal(times(desktop.labels)[0].text,new Date(rows[0].ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}));
+  assert.equal(times(desktop.labels).at(-1).text,new Date(rows.at(-1).ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}));
+  assert(desktop.labels.some(l=>/^\d{2}\.\d{2}/.test(l.text)));
+  assert.equal(times(phone.labels)[0].x,phone.layout.pad.left);
+  assert.equal(times(phone.labels).at(-1).x,phone.layout.pad.left+phone.layout.plotW);
+  assert.equal(times(draw(320,true).labels).length,0);
+});
+
+test('sidebar omits the local V3 Native footer description',()=>{
+  const html=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
+  assert(!html.includes('Lokalny panel ecoMAX · V3 Native'));
+  assert(html.includes('sidebar-version'));
 });

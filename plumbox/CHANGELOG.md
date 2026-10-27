@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.40
+
+- dodano godziny HH:MM na dolnej osi wykresu w menu Historia temperatur; przy przejściu między dniami widoczna jest także data,
+- liczba podpisów dopasowuje się do szerokości wykresu; pierwszy i ostatni podpis są wyrównane do jego krawędzi,
+- usunięto napis Lokalny panel ecoMAX · V3 Native ze stopki menu bocznego.
+
 ## 2.8.39
 
 - dodano do menu Mieszacz: sterowanie pogodowe, współczynnik pogodowy, pracę od termostatu i pracę latem,

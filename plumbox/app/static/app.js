@@ -1294,7 +1294,7 @@
     const ctx = canvas.getContext("2d");
     ctx.setTransform(ratio,0,0,ratio,0,0);
     const width = rect.width, height = rect.height;
-    const pad = compact ? { left:38,right:8,top:28,bottom:22 } : { left:48,right:12,top:30,bottom:30 };
+    const pad = compact ? { left:38,right:8,top:28,bottom:22 } : { left:48,right:12,top:30,bottom:48 };
     const plotW = width - pad.left - pad.right, plotH = height - pad.top - pad.bottom;
     canvas.__layout = null;
     ctx.clearRect(0,0,width,height);
@@ -1310,6 +1310,38 @@
     canvas.__layout = { pad, plotW, plotH, min, range };
     ctx.fillText("°C", 3, 14);
     for (let i=0;i<=3;i++) { const y=pad.top+plotH*i/3; ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(width-pad.right,y); ctx.stroke(); ctx.fillText(String(Math.round(max-range*i/3)),3,y+4); }
+    if (!compact && rows.length > 0) {
+      // Labels refer to the same sample positions used by the lines and hover.
+      const intervals = Math.min(6, Math.max(1, Math.floor(plotW / 90))), used = new Set();
+      const timeFormat = new Intl.DateTimeFormat("pl-PL", { hour: "2-digit", minute: "2-digit" });
+      const dayFormat = new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit" });
+      const first = new Date(rows[0].ts), last = new Date(rows[rows.length - 1].ts);
+      const showDate = Number.isFinite(first.getTime()) && Number.isFinite(last.getTime())
+        && (first.toDateString() !== last.toDateString());
+      ctx.save();
+      ctx.fillStyle = cssColor("--chart-ink", "#89949d");
+      ctx.strokeStyle = cssColor("--chart-grid", "rgba(255,255,255,.08)");
+      ctx.lineWidth = 1;
+      ctx.font = "500 12px system-ui";
+      ctx.textBaseline = "alphabetic";
+      for (let i = 0; i <= intervals; i++) {
+        const index = Math.round(i * (rows.length - 1) / intervals);
+        if (used.has(index)) continue;
+        used.add(index);
+        const date = new Date(rows[index].ts);
+        if (!Number.isFinite(date.getTime())) continue;
+        const x = pad.left + plotW * index / Math.max(1, rows.length - 1);
+        ctx.textAlign = index === 0 ? "left" : index === rows.length - 1 ? "right" : "center";
+        ctx.beginPath(); ctx.moveTo(x, pad.top + plotH); ctx.lineTo(x, pad.top + plotH + 5); ctx.stroke();
+        ctx.fillText(timeFormat.format(date), x, height - (showDate ? 24 : 14));
+        if (showDate) {
+          ctx.font = "500 11px system-ui";
+          ctx.fillText(dayFormat.format(date), x, height - 8);
+          ctx.font = "500 12px system-ui";
+        }
+      }
+      ctx.restore();
+    }
     // Przy najeździe wyróżniamy tylko serię najbliższą kursorowi:
     // pozostałe są przygaszone, kropka i dymek dotyczą jednej linii.
     visible.forEach(([key,color]) => { ctx.globalAlpha = hoverKey && key !== hoverKey ? 0.25 : 1; ctx.strokeStyle=color; ctx.lineWidth=(hoverKey === key ? 1 : 0) + (compact?2:2.5); ctx.beginPath(); let started=false; rows.forEach((row,index)=>{ const number=finiteNumber(row[key]); if(number===null)return; const x=pad.left+plotW*index/Math.max(1,rows.length-1); const y=pad.top+plotH-((number-min)/range)*plotH; if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);}); ctx.stroke(); });
