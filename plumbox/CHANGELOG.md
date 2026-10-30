@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.41
+
+- dodano na ekranie głównym obok Urządzenia / stan kartę czasów pracy MAX, średnia i minimalna za ostatnie 48 godzin, wraz z udziałami w czasie pracy i paskiem podziału; dane pochodzą z historii PlumBox,
+- dodano w menu Dane widok Czasy pracy z czasem zarejestrowanych danych i pracą przy nieznanym lub innym poziomie; brak danych pozostaje oznaczony kreską,
+- odświeżono wygląd tygodniowego harmonogramu pracy kotła; zachowano dotychczasowy odczyt, uprawnienia, potwierdzenia i zapis do sterownika.
+
 ## 2.8.40
 
 - dodano godziny HH:MM na dolnej osi wykresu w menu Historia temperatur; przy przejściu między dniami widoczna jest także data,

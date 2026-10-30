@@ -381,7 +381,29 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
 .progress span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-strong)); }
 
 /* ── podgląd: urządzenia i serwis ─────────────────────────────────────────── */
-.middle-row { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.middle-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+#overviewPowerRuntime, #overviewPowerRuntime > .runtime-panel { min-width: 0; height: 100%; }
+.runtime-panel { display: flex; flex-direction: column; gap: 22px; background: color-mix(in srgb, var(--ok) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--ok) 35%, var(--line)); }
+.runtime-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.runtime-heading .panel-title { margin: 0; }
+.runtime-heading > span { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.runtime-values { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.runtime-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.runtime-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.runtime-item strong { display: block; margin-top: 13px; font-size: clamp(14px,1.15vw,21px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.runtime-item small { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; }
+.runtime-bar { display: flex; gap: 4px; width: 100%; height: 8px; overflow: hidden; border-radius: 5px; background: var(--surface-3); }
+.runtime-bar span { display: block; min-width: 0; border-radius: 5px; }
+.runtime-bar-max { background: var(--viz-orange); }
+.runtime-bar-mid { background: #b7ebca; }
+.runtime-bar-min { background: var(--viz-blue); }
+.runtime-caption, .runtime-extra { color: var(--muted); font-size: 12px; }
+.runtime-details { align-self: flex-start; border: 0; padding: 0; background: none; color: var(--ok); font: inherit; font-size: 12px; cursor: pointer; }
+.runtime-panel-detail { max-width: 1000px; }
+.runtime-panel-detail .runtime-item strong { font-size: clamp(18px,2vw,27px); }
+.runtime-extra { border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.8; }
+.runtime-extra strong { color: var(--text); }
+.runtime-extra p { margin-bottom: 0; }
 .device-table, .service-table { display: flex; flex-direction: column; }
 .device-line, .service-line {
   display: grid; align-items: center; gap: 10px;
@@ -905,6 +927,7 @@ td strong { color: var(--text-strong); }
 .schedule-heading, .schedule-plan-state, .schedule-legend, .schedule-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .schedule-heading { justify-content: space-between; margin-bottom: 18px; }
 .schedule-heading h2 { margin: 0; font-size: 21px; }
+.schedule-subtitle { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .schedule-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
 .schedule-plan-state { justify-content: space-between; margin-bottom: 22px; }
 .schedule-enabled { display: flex; align-items: center; gap: 8px; }
@@ -913,7 +936,7 @@ td strong { color: var(--text-strong); }
 .schedule-legend { gap: 18px; margin-bottom: 20px; }
 .schedule-legend span { display: flex; gap: 7px; align-items: center; }
 .schedule-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
-.schedule-on { background: var(--ok); }
+.schedule-on { background: #b7ebca; }
 .schedule-off { background: var(--surface-3); }
 .schedule-unknown { background: var(--surface-2); }
 .schedule-axis { margin-left: 44px; display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
@@ -939,6 +962,9 @@ td strong { color: var(--text-strong); }
   .schedule-slots { gap: 1px; }
   .schedule-week-row { grid-template-columns: 25px minmax(0,1fr); gap: 7px; }
   .schedule-axis { margin-left: 32px; }
+  .schedule-axis span:nth-child(even) { display: none; }
+  .runtime-values { gap: 8px; }
+  .runtime-item strong { font-size: 13px; }
   .schedule-editor { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
   .schedule-editor label { min-width: 0; }
   .schedule-editor label:first-child, .schedule-editor label:last-of-type, .schedule-editor button { grid-column: 1 / -1; }

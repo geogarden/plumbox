@@ -13,6 +13,7 @@
     historyRows: [],
     powerRuntime: null,
     powerRuntimeLoadedAt: 0,
+    powerRuntimeInFlight: null,
     overviewHistory: [],
     overviewHistoryRevision: 0,
     alarmRows: [],
@@ -82,6 +83,7 @@
     protections: "ZABEZPIECZENIA",
     alarms: "ALARMY",
     history: "HISTORIA TEMPERATUR",
+    runtime: "CZASY PRACY",
     statistics: "STATYSTYKI CYKLI",
     notifications: "ALERTY NA TELEFON",
     all: "WSZYSTKIE PARAMETRY",
@@ -535,10 +537,52 @@
   }
 
   async function loadPowerRuntime() {
+    if (state.powerRuntimeInFlight) return state.powerRuntimeInFlight;
     if (Date.now() - state.powerRuntimeLoadedAt < 30000) return;
-    try { state.powerRuntime = await api("/api/power-runtime"); }
-    catch { state.powerRuntime = null; }
-    state.powerRuntimeLoadedAt = Date.now();
+    state.powerRuntimeInFlight = (async () => {
+      try { state.powerRuntime = await api("/api/power-runtime"); }
+      catch { state.powerRuntime = null; }
+      finally { state.powerRuntimeLoadedAt = Date.now(); }
+    })();
+    try { await state.powerRuntimeInFlight; }
+    finally { state.powerRuntimeInFlight = null; }
+  }
+
+  function powerRuntimeHtml(detail = false) {
+    const runtime = state.powerRuntime;
+    const totals = runtime?.seconds;
+    const values = ["100", "50", "30"].map((key) => {
+      const number = finiteNumber(totals?.[key]);
+      return number !== null && number >= 0 ? number : null;
+    });
+    const known = values.every((value) => value !== null);
+    const total = known ? values.reduce((sum, value) => sum + value, 0) : null;
+    const items = [["MAX", "max"], ["ŚREDNIA", "mid"], ["MINIMALNA", "min"]];
+    const caption = !known ? "Brak zapisanych danych o czasie pracy."
+      : total === 0 ? "Brak zarejestrowanej pracy na tych poziomach."
+      : "Udział w zarejestrowanym czasie pracy na trzech poziomach.";
+    const bars = known && total > 0 ? items.map(([, color], index) =>
+      `<span class="runtime-bar-${color}" style="width:${values[index] / total * 100}%"></span>`).join("") : "";
+    return `<article class="card runtime-panel ${detail ? "runtime-panel-detail" : ""}">
+      <div class="runtime-heading"><div class="panel-title">CZASY PRACY</div><span>OSTATNIE 48 h</span></div>
+      <div class="runtime-values">${items.map(([label, color], index) => {
+        const share = known && total > 0 ? `${Math.round(values[index] / total * 100)}% czasu pracy` : "—";
+        return `<div class="runtime-item"><div class="runtime-label"><i class="runtime-dot runtime-bar-${color}"></i>${label}</div><strong>${escapeHtml(formatRuntime(values[index]))}</strong><small>${escapeHtml(share)}</small></div>`;
+      }).join("")}</div>
+      <div class="runtime-bar" aria-hidden="true">${bars}</div>
+      <div class="runtime-caption">${escapeHtml(caption)}</div>
+      ${detail ? `<div class="runtime-extra"><div>Zarejestrowano danych: <strong>${escapeHtml(formatRuntime(runtime?.covered_seconds))}</strong></div><div>Praca przy innym lub nieznanym poziomie: <strong>${escapeHtml(formatRuntime(runtime?.unknown_work_seconds))}</strong></div><p>Przerwy w odczytach nie są doliczane. Procenty odnoszą się do sumy pokazanych poziomów.</p></div>` : `<button type="button" class="runtime-details" data-open-view="runtime">Zobacz szczegóły →</button>`}
+    </article>`;
+  }
+
+  function refreshRuntimeWidgets() {
+    const target = $("overviewPowerRuntime") || $("powerRuntimeView");
+    if (!target) return;
+    const html = powerRuntimeHtml(target.id === "powerRuntimeView");
+    if (target.__lastRuntimeHtml !== html) {
+      target.innerHTML = html;
+      target.__lastRuntimeHtml = html;
+    }
   }
 
   function hysteresisSummaryHtml() {
@@ -925,8 +969,7 @@
             ${deviceLine("♨", "Zapalarka", booleanValue(val("lighter", null)))}
             ${deviceLine("✥", "Wentylator", booleanValue(val("fan", null)))}
           </div></article>
-
-
+          <div id="overviewPowerRuntime">${powerRuntimeHtml()}</div>
         </div>
 
         <div class="bottom-row bottom-row-full">
@@ -1697,6 +1740,7 @@
         bindContentEvents();
       }
       setTimeout(loadOverviewExtras, 0);
+      setTimeout(() => { loadPowerRuntime().then(refreshRuntimeWidgets); }, 0);
       return;
     }
     if (state.activeView === "installation") {
@@ -1717,6 +1761,10 @@
       if (view === "hysteresis") await loadPowerRuntime();
       if (state.activeView !== view) return;
       content.innerHTML = filteredHtml(view);
+    }
+    else if (state.activeView === "runtime") {
+      content.innerHTML = `<section id="powerRuntimeView">${powerRuntimeHtml(true)}</section>`;
+      loadPowerRuntime().then(refreshRuntimeWidgets);
     }
     else if (state.activeView === "alarms") content.innerHTML = await alarmsHtml();
     else if (state.activeView === "history") content.innerHTML = await historyHtml();
@@ -1956,6 +2004,7 @@
         fetchSnapshot();
       }
       if (state.activeView === "hysteresis") loadPowerRuntime().then(refreshHysteresisSummary);
+      if (state.activeView === "overview" || state.activeView === "runtime") loadPowerRuntime().then(refreshRuntimeWidgets);
       if (state.activeView === "statistics") render().catch(() => {});
       if (Date.now() - state.authCheckedAt > 30000) {
         const previousAccess = `${state.role}:${state.unlocked}`;

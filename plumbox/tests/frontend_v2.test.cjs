@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -226,6 +226,40 @@ test('runtime cards load persisted totals from API and refresh after 30 seconds'
   p.state.powerRuntimeLoadedAt=Date.now()-31000;
   await p.loadPowerRuntime();assert.equal(calls,2);
   assert(p.hysteresisSummaryHtml().includes('2 h 0 min 0 s'));
+});
+
+test('overview and detail runtime cards show only recorded values and correct shares',()=>{
+  const p=panel();p.state.snapshot={values:{},mixers:{}};
+  p.state.powerRuntime={seconds:{'100':262*60,'50':498*60,'30':374*60},covered_seconds:7200,unknown_work_seconds:60};
+  const html=p.overviewHtml();
+  assert(html.indexOf('URZĄDZENIA / STAN') < html.indexOf('CZASY PRACY'));
+  for(const expected of ['4 h 22 min 0 s','8 h 18 min 0 s','6 h 14 min 0 s','23% czasu pracy','44% czasu pracy','33% czasu pracy'])assert(html.includes(expected),expected);
+  const detail=p.powerRuntimeHtml(true);
+  assert(detail.includes('Zarejestrowano danych:'));assert(detail.includes('Praca przy innym lub nieznanym poziomie:'));
+  assert(detail.includes('0 h 1 min 0 s'));
+});
+
+test('runtime cards distinguish absent data, zero work and partial values',()=>{
+  const p=panel();p.state.snapshot={values:{},mixers:{}};
+  assert.match(p.powerRuntimeHtml(),/Brak zapisanych danych/);
+  assert.equal((p.powerRuntimeHtml().match(/<strong>—<\/strong>/g)||[]).length,3);
+  p.state.powerRuntime={seconds:{'100':0,'50':0,'30':0}};
+  assert.match(p.powerRuntimeHtml(),/Brak zarejestrowanej pracy/);
+  assert.equal((p.powerRuntimeHtml().match(/0 h 0 min 0 s/g)||[]).length,3);
+  p.state.powerRuntime={seconds:{'100':3600,'50':null,'30':0}};
+  assert.match(p.powerRuntimeHtml(),/1 h 0 min 0 s/);
+  assert.match(p.powerRuntimeHtml(),/Brak zapisanych danych/);
+  assert.doesNotMatch(p.powerRuntimeHtml(),/% czasu pracy/);
+});
+
+test('simultaneous runtime loads share one request and a failed refresh clears stale readings',async()=>{
+  let release,calls=0;const pending=new Promise(resolve=>release=resolve);
+  const p=panel(async()=>{calls++;await pending;return json({seconds:{'100':3600,'50':0,'30':0}});});
+  const first=p.loadPowerRuntime(),second=p.loadPowerRuntime();release();await Promise.all([first,second]);
+  assert.equal(calls,1);assert.equal(p.state.powerRuntime.seconds['100'],3600);
+  const failed=panel(async()=>{throw new Error('offline');});
+  failed.state.powerRuntime={seconds:{'100':3600,'50':0,'30':0}};await failed.loadPowerRuntime();
+  assert.equal(failed.state.powerRuntime,null);assert.match(failed.powerRuntimeHtml(),/Brak zapisanych danych/);
 });
 
 
