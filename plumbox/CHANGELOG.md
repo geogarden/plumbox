@@ -1,3 +1,10 @@
+## 2.8.45
+
+- Stan podajnika na schemacie pokazuje trybik bez widocznego tekstu.
+- Podczas potwierdzonej pracy trybik jest zielony i obraca się; w postoju, przy braku odczytu lub połączenia jest szary i nieruchomy.
+- Zachowano opisy dla czytników ekranu i obsługę ograniczenia animacji.
+- Odświeżono pamięć podręczną zasobów WWW.
+
 ## 2.8.44
 
 - Połączono Podgląd ze schematem instalacji: schemat jest pierwszy, kafelki poniżej.

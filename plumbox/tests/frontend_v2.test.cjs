@@ -154,11 +154,12 @@ test('graphic readouts update from snapshot and preserve missing sensor values',
   assert.match(html, /boiler.svg/);
   assert.match(html, /<b>67<small>°C<\/small><\/b>/);
   assert.match(html, /Temp. podajnika/);
-  assert.match(html, /Podawanie pelletu/);
+  assert.match(html, /scheme-feed-status active/);
+  assert.match(html, /scheme-feeder-gear/);
   p.state.snapshot={connected:true,values:{state_label:'Postój'}};
   html=p.installationSchemeHtml();
   assert.match(html, /burner-idle/);
-  assert.match(html, /Podawanie: brak odczytu/);
+  assert.match(html, /aria-label="Brak odczytu podajnika"/);
   assert.doesNotMatch(html, /67|29/);
 });
 
@@ -375,4 +376,19 @@ test('merged overview starts with hydraulic scheme and omits removed widgets',()
  for(const removed of ['URZĄDZENIA / STAN','overviewHistoryCanvas','hero-card','>PODAJNIK</div>','scheme-legend','SCHEMAT HYDRAULICZNY · UKŁAD DEKLAROWANY']) assert(!html.includes(removed),removed);
  for(const retained of ['67,1','41','9,8','74,6','overviewPowerRuntime','data-open-view="alarms"']) assert(html.includes(retained),retained);
  assert(html.includes('Temp. podajnika'));
+});
+
+
+test('feeder gear remains visible in all states and only confirmed work activates it',()=>{
+ const p=panel();
+ for(const [connected,feeder,active] of [[true,true,true],[true,false,false],[true,undefined,false],[false,true,false]]){
+  p.state.snapshot={connected,values:{state_label:'Praca',feeder}};
+  const html=p.installationSchemeHtml();
+  const indicator=html.match(/<span class="scheme-feed-status[\s\S]*?<\/svg>/)[0];
+  assert.equal(indicator.includes('scheme-feed-status active'),active);
+  assert(indicator.includes('scheme-feeder-gear'));
+  assert.equal(indicator.replace(/<[^>]*>/g,''),'');
+ }
+ const css=fs.readFileSync(path.join(__dirname,'../app/static/scheme.css'),'utf8');
+ assert(css.includes('@media(prefers-reduced-motion:reduce)'));
 });

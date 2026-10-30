@@ -244,9 +244,7 @@
 .scheme-burner-readout > strong { display: block; margin: 3px 0 5px; color: #263f4e; font-size: 13px; }
 .scheme-burner-readout > small { display: block; color: #576b78; font-size: 10px; }
 .scheme-burner-readout > small b { color: #b45a17; }
-.scheme-feed-status { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 6px; color: #64737d; font-size: 9px; }
-.scheme-feed-status i { width: 5px; height: 5px; border-radius: 50%; background: #9faab0; }
-.scheme-feed-status.active i { background: #20b57a; animation: scheme-ignition-pulse 1s ease-in-out infinite; }
+.scheme-feed-status { display: flex; align-items: center; justify-content: center; min-height: 26px; margin-top: 6px; }
 .scheme-tank > small {
   position: absolute;
   left: 0;
@@ -676,3 +674,9 @@
 .scheme-boiler-image,
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-boiler-image { clip-path: none; mix-blend-mode: normal; }
 
+
+/* Podajnik: szary w postoju, zielony i obracający się podczas pracy. */
+.scheme-feeder-gear {display:block;width:24px;height:24px;color:var(--muted,#92a0b3);animation:none;transform-origin:center}
+.scheme-feed-status.active .scheme-feeder-gear {color:var(--scheme-green,#27c96f);animation:scheme-feeder-spin 2s linear infinite}
+@keyframes scheme-feeder-spin {to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.scheme-feed-status.active .scheme-feeder-gear{animation:none}}
