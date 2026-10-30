@@ -775,32 +775,21 @@ def test_oled_theme_uses_green_palette(client):
     assert "--chart-s1: #47e6a4" in oled
     assert "--chart-s2: #ff9f43" in oled
     assert 'oled: "#07110f"' in app_js
-    assert 'data-theme-set="oled">◐<span>OLED</span>' in index
+    assert 'data-theme-set="oled"' not in index
 
 
 def test_gptsol10_dashboard_has_requested_metric_order_and_full_width_chart(client):
     app_js = client.get("/assets/app.js").text
     styles = client.get("/assets/styles.css").text
     overview = app_js.split("function overviewHtml()", 1)[1].split("function parametersForSection", 1)[0]
-    markers = [
-        "PODAJNIK",
-        "OBCIĄŻENIE",
-        "WENTYLATOR",
-        "MIESZACZ",
-        "CWU",
-        "POZIOM PALIWA",
-        "ALARMY AKTYWNE",
-    ]
-    positions = [overview.index(marker) for marker in markers]
-    assert positions == sorted(positions)
-    assert all(label not in overview for label in ("MOC CHWILOWA", "PŁOMIEŃ", "POWRÓT", "PELLET DZISIAJ", "SPALANIE CHWILOWE", "USTAWIENIA SPALANIA"))
+    assert '${installationSchemeHtml()}' in overview
+    assert overview.index('${installationSchemeHtml()}') < overview.index('OBCIĄŻENIE')
+    for marker in ["OBCIĄŻENIE", "WENTYLATOR", "MIESZACZ", "CWU", "POZIOM PALIWA", "ALARMY AKTYWNE"]:
+        assert marker in overview
+    for marker in ["hero-card", "URZĄDZENIA / STAN", "overviewHistoryCanvas", '>PODAJNIK</div>']:
+        assert marker not in overview
     assert 'data-open-view="alarms"' in overview
-    assert "STAN KOTŁA" not in overview
-    assert "OSTATNIE ALARMY" not in overview
-    assert 'class="bottom-row bottom-row-full"' in overview
-    top_cards = overview.split('<div class="top-cards">', 1)[1].split('</div>\n\n        <div class="metric-row">', 1)[0]
-    assert all(marker in top_cards for marker in ("PODAJNIK", "OBCIĄŻENIE"))
-    assert "grid-template-columns: 1.7fr repeat(3, 1fr)" in styles
+    assert 'overviewPowerRuntime' in overview
 
 
 def test_embedded_system_pages_follow_green_oled_palette():
@@ -1499,7 +1488,7 @@ def test_all_econet_screenshot_parameters_exist_and_have_exact_labels():
         "mixer_target_temp:mixer": "Temperatura zadana obiegu grzewczego",
         "thermostat_mode:mixer": "Wybór termostatu obiegu",
         "thermostat_decrease_target_temp:mixer": "Obniżenie temperatury zadanej obiegu przy rozwartym styku termostatu",
-        "summer_mode": "Tryb LATO",
+        "summer_mode": "Tryb pracy: Lato / Zima / Auto",
         "summer_mode_enable_temp": "Temperatura wejścia w tryb LATO",
         "summer_mode_disable_temp": "Temperatura wyjścia z trybu LATO",
     }
@@ -1687,14 +1676,13 @@ def test_auto_detect_uses_snapshot_product_id_to_gate_fan_rpm(tmp_path):
     assert fixed_missing["hardware_profile"]["status"] == "fixed_fallback"
 
 
-def test_hardware_identification_source_is_visible_in_model_badge():
+def test_model_badge_is_removed_from_topbar():
     root = Path(__file__).resolve().parents[1]
     html = (root / "app" / "static" / "index.html").read_text(encoding="utf-8")
     js = (root / "app" / "static" / "app.js").read_text(encoding="utf-8")
-    assert 'id="modelSourceBadge"' in html
-    assert 'fixed_fallback: "MODEL: FIXED"' in js
-    assert 'inactive: "MODEL: NIEZNANY"' in js
-    assert 'modelBadge.title = hardware.label || "Źródło identyfikacji modelu"' in js
+    assert 'id="modelSourceBadge"' not in html
+    assert 'const modelBadge' not in js
+    assert 'id="connectionBadge"' in html
 
 
 def test_html_pages_are_not_browser_cached(client, anon_client):
@@ -1764,8 +1752,8 @@ def test_installation_specific_pump_labels_are_explicit():
     root = Path(__file__).resolve().parents[1]
     app_js = (root / "app" / "static" / "app.js").read_text(encoding="utf-8")
 
-    assert 'deviceLine("♨", "Pompa kotłowa"' in app_js
-    assert 'deviceLine("◉", "Pompa CO za mieszaczem"' in app_js
+    assert 'deviceLine("♨", "Pompa kotłowa"' not in app_js
+    assert 'deviceLine("◉", "Pompa CO za mieszaczem"' not in app_js
     assert 'deviceLine("♨", "Pompa CO"' not in app_js
     assert 'deviceLine("◉", "Pompa mieszacza"' not in app_js
 

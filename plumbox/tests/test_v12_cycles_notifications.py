@@ -270,10 +270,10 @@ def test_cycles_endpoint_and_qr_removal(client):
     assert {"current","last","observed_today_seconds","starts_today","cycles"} <= response.json().keys()
     script = client.get("/assets/app.js").text
     assert 'class="qr-box"' not in script
-    assert 'class="card remote-card"' in script
+    assert 'class="card remote-card"' not in script
     html = client.get("/").text
     assert 'data-view="statistics"' in html
-    assert 'data-view="notifications"' in html
+    assert 'data-view="notifications"' not in html
     assert "boiler_views.js" in html
 
 

@@ -8,13 +8,13 @@ def test_installation_scheme_is_registered_as_a_native_view():
     index = (STATIC / "index.html").read_text(encoding="utf-8")
     script = (STATIC / "app.js").read_text(encoding="utf-8")
 
-    assert 'data-view="installation"' in index
-    assert "Schemat instalacji" in index
-    assert 'scheme.css?v=gptsol-75' in index
-    assert 'app.js?v=gptsol-75' in index
+    assert 'data-view="installation"' not in index
+    assert 'data-view="overview"' in index
+    assert 'scheme.css?v=gptsol-76' in index
+    assert 'app.js?v=gptsol-76' in index
     assert 'installation: "SCHEMAT INSTALACJI"' in script
     assert "installationSchemeHtml" in script
-    assert "UKŁAD DEKLAROWANY" in script
+    assert "UKŁAD DEKLAROWANY" not in script
     assert "nie jest pomiarem przepływu" in script
 
 

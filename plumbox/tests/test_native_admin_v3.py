@@ -185,7 +185,7 @@ def test_v3_frontend_uses_native_views_and_keeps_iframe_fallback():
     assert "loadNativeSystemView(state.activeView)" in app_js
     assert "iframe class=\"embed-frame\"" in app_js
     assert index.index("plumbox_theme") < index.index("assets/styles.css")
-    assert "V3 Native" in index
+    assert "Lokalny panel ecoMAX · V3 Native" not in index
     assert "V3 TEST NATIVE" not in index
 
 

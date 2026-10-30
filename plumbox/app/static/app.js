@@ -290,7 +290,7 @@
   }
 
   // Trzy motywy jako przełącznik segmentowy; OLED korzysta z ciemnozielonej palety.
-  const THEME_ORDER = ["dark", "light", "oled"];
+  const THEME_ORDER = ["dark", "light"];
   const THEME_COLORS = { dark: "#0b1017", light: "#eef1f6", oled: "#07110f" };
 
   function updateThemeSwitch() {
@@ -326,21 +326,6 @@
     badge.querySelector("strong").textContent = connected ? (simulated ? "SYMULACJA" : "ONLINE") : "OFFLINE";
     $("offlineBanner").classList.toggle("hidden", connected);
 
-    const hardware = state.snapshot?.hardware_profile || {};
-    const modelBadge = $("modelSourceBadge");
-    const modelStatus = connected ? (hardware.status || "inactive") : "offline";
-    const modelName = String(hardware.product_id) === "2" ? "860P4-LZ" : `ID ${hardware.product_id ?? "—"}`;
-    const shortLabels = {
-      verified: `MODEL: ${modelName}`,
-      fixed_fallback: "MODEL: FIXED",
-      foreign: `MODEL: ${modelName}`,
-      inactive: "MODEL: NIEZNANY",
-      simulation: "MODEL: SYMULATOR",
-      offline: "MODEL: —",
-    };
-    modelBadge.className = `model-source-pill ${modelStatus}`;
-    modelBadge.querySelector("strong").textContent = shortLabels[modelStatus] || "MODEL: NIEZNANY";
-    modelBadge.title = hardware.label || "Źródło identyfikacji modelu";
 
 
   }
@@ -811,18 +796,6 @@
     const thermostatText = thermostat === null ? "BRAK ODCZYTU" : thermostat ? "WŁĄCZONY" : "WYŁĄCZONY";
 
     return `<section class="${classes}" data-installation-scheme>
-      <div class="scheme-header">
-        <div>
-          <span class="scheme-eyebrow">SCHEMAT HYDRAULICZNY · UKŁAD DEKLAROWANY</span>
-          <p>Schemat według konfiguracji instalacji użytkownika. CO i CWU mają osobne zasilania oraz powroty.</p>
-        </div>
-        <div class="scheme-legend" aria-label="Legenda schematu">
-          <span><i class="hot"></i>Zasilanie</span>
-          <span><i class="cold"></i>Powrót</span>
-          <span><i class="active"></i>Pompa pracuje</span>
-        </div>
-      </div>
-
       <div class="scheme-status-strip">
         <i class="scheme-status-dot" aria-hidden="true"></i>
         <strong>${escapeHtml(mode).toUpperCase()}</strong>
@@ -944,42 +917,21 @@
     if (activeSnapshotAlerts > 0) activeAlarmCount = Math.max(activeAlarmCount ?? 0, activeSnapshotAlerts);
     if (activeAlarmCount === null && alarmSignal !== null) activeAlarmCount = alarmSignal ? 1 : 0;
     const hasActiveAlarm = activeAlarmCount !== null && activeAlarmCount > 0;
-    return `<div class="dashboard-shell">
-      <div class="dashboard-main">
-        <div class="top-cards">
-          <article class="card hero-card"><div class="hero-label">TEMPERATURA KOTŁA</div><div class="hero-temp">${escapeHtml(fmt(heating))}<small>°C</small></div><div class="hero-meta"><span>Temperatura zadana: <strong>${escapeHtml(fmt(target))}°C</strong></span><span>Tryb pracy: <strong class="mode">${escapeHtml(mode).toUpperCase()}</strong></span></div></article>
-          <article class="card metric-card"><div class="metric-top"><span>⚿</span>PODAJNIK</div><div class="metric-value orange">${escapeHtml(fmt(val("feeder_temp")))}<small>°C</small></div>${sparkline("feeder_temp", cssColor("--viz-amber", "#d99b2b"), 30)}</article>
+    return `<div class="dashboard-shell merged-overview"><div class="dashboard-main">
+      ${installationSchemeHtml()}
+              <div class="metric-row merged-metrics">
           <article class="card metric-card"><div class="metric-top"><span>⌁</span>OBCIĄŻENIE</div><div class="metric-value green">${escapeHtml(fmt(boilerLoad, 0))}<small>%</small></div><div class="status-metric-note">Wartość przekazana przez sterownik</div>${sparkline("boiler_load", cssColor("--viz-green", "#34c98e"), 30)}</article>
           <article class="card metric-card"><div class="metric-top"><span>✥</span>WENTYLATOR</div><div class="metric-value blue">${escapeHtml(fmt(val("fan_power"), 0))}<small>%</small></div>${sparkline("fan_power", cssColor("--viz-blue", "#4a8fe8"), 30)}</article>
-        </div>
 
-        <div class="metric-row">
           <article class="card metric-card"><div class="metric-top"><span>⌘</span>MIESZACZ</div><div class="metric-value blue">${escapeHtml(fmt(mixerTemp))}<small>°C</small></div><div class="status-metric-note">Zadana: ${escapeHtml(fmt(mixerTarget))}°C</div>${sparkline("mixer_temp", cssColor("--chart-s4", "#bb8b16"), 30)}</article>
           <article class="card metric-card"><div class="metric-top"><span>💧</span>CWU</div><div class="metric-value blue">${escapeHtml(fmt(cwu))}<small>°C</small></div><div class="status-metric-note">Zadana: ${escapeHtml(fmt(cwuTarget))}°C</div>${sparkline("water_heater_temp", cssColor("--chart-s3", "#4a8fe8"), 30)}</article>
           <article class="card metric-card"><div class="metric-top"><span>▧</span>POZIOM PALIWA</div><div class="metric-value green">${escapeHtml(fmt(fuelLevel, 0))}<small>%</small></div>${sparkline("fuel_level", cssColor("--viz-green", "#34c98e"), 30)}</article>
           <button type="button" class="card metric-card metric-action-card${hasActiveAlarm ? " alarm-active" : ""}" data-open-view="alarms"><div class="metric-top"><span>${hasActiveAlarm ? "⚠" : "✓"}</span>ALARMY AKTYWNE</div><div class="metric-value ${hasActiveAlarm ? "red" : "green"}">${escapeHtml(fmt(activeAlarmCount, 0))}</div><div class="status-metric-note">Kliknij, aby otworzyć alarmy</div></button>
         </div>
 
-        <div class="middle-row">
-          <article class="card device-panel"><div class="panel-title">URZĄDZENIA / STAN</div><div class="device-table">
-            ${deviceLine("♨", "Pompa kotłowa", booleanValue(val("heating_pump", null)))}
-            ${deviceLine("💧", "Pompa CWU", booleanValue(val("water_heater_pump", null)))}
-            ${deviceLine("◉", "Pompa CO za mieszaczem", booleanValue(mixer.pump))}
-            ${deviceLine("⚿", "Podajnik", booleanValue(val("feeder", null)))}
-            ${deviceLine("♨", "Zapalarka", booleanValue(val("lighter", null)))}
-            ${deviceLine("✥", "Wentylator", booleanValue(val("fan", null)))}
-          </div></article>
-          <div id="overviewPowerRuntime">${powerRuntimeHtml()}</div>
-        </div>
 
-        <div class="bottom-row bottom-row-full">
-          <article class="card history-card"><div class="panel-title">HISTORIA TEMPERATUR · OSTATNIE 24 GODZINY</div>${chartLegendHtml(overviewChartSeries())}<div class="history-wrap"><canvas id="overviewHistoryCanvas"></canvas></div></article>
-        </div>
-      </div>
-
-    </div>
-
-`;
+      <div id="overviewPowerRuntime">${powerRuntimeHtml()}</div>
+    </div></div>`;
   }
 
   function parametersForSection(section) {
@@ -1710,6 +1662,7 @@
   }
 
   async function render() {
+    if (state.activeView === "installation") state.activeView = "overview";
     if (!state.snapshot) { content.innerHTML = `<div class="loading-card">Oczekiwanie na dane…</div>`; return; }
     setConnectionUi();
     $("viewTitle").textContent = titles[state.activeView] || "PLUMBOX";
@@ -1739,6 +1692,7 @@
         content.innerHTML = html;
         bindContentEvents();
       }
+      requestAnimationFrame(fitInstallationScheme);
       setTimeout(loadOverviewExtras, 0);
       setTimeout(() => { loadPowerRuntime().then(refreshRuntimeWidgets); }, 0);
       return;
@@ -1990,7 +1944,7 @@
     window.addEventListener("resize", () => {
       if (state.activeView === "overview") drawOverviewHistoryChart(true);
       if (state.activeView === "history") drawMainHistoryChart();
-      if (state.activeView === "installation") fitInstallationScheme();
+      if (["installation", "overview"].includes(state.activeView)) fitInstallationScheme();
     });
     setInterval(() => {
       if (state.authExpired || document.visibilityState === "hidden") return;

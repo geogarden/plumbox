@@ -1,3 +1,11 @@
+## 2.8.44
+
+- Połączono Podgląd ze schematem instalacji: schemat jest pierwszy, kafelki poniżej.
+- Usunięto z Podglądu osobne kafelki kotła i podajnika, urządzenia/stan oraz historię temperatur. Odczyty na schemacie i osobna Historia temperatur pozostają dostępne.
+- Usunięto osobną pozycję Schemat instalacji, przycisk OLED i oznaczenie MODEL z górnego paska.
+- Usunięto nagłówek, opis i legendę schematu. Zachowano stany i odczyty instalacji.
+- Odświeżono wersję pamięci podręcznej zasobów panelu.
+
 # Changelog
 
 ## 2.8.43

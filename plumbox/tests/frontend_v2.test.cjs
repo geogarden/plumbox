@@ -232,7 +232,7 @@ test('overview and detail runtime cards show only recorded values and correct sh
   const p=panel();p.state.snapshot={values:{},mixers:{}};
   p.state.powerRuntime={seconds:{'100':262*60,'50':498*60,'30':374*60},covered_seconds:7200,unknown_work_seconds:60};
   const html=p.overviewHtml();
-  assert(html.indexOf('URZĄDZENIA / STAN') < html.indexOf('CZASY PRACY'));
+  assert(!html.includes('URZĄDZENIA / STAN')); assert(html.includes('CZASY PRACY'));
   for(const expected of ['4 h 22 min 0 s','8 h 18 min 0 s','6 h 14 min 0 s','23% czasu pracy','44% czasu pracy','33% czasu pracy'])assert(html.includes(expected),expected);
   const detail=p.powerRuntimeHtml(true);
   assert(detail.includes('Zarejestrowano danych:'));assert(detail.includes('Praca przy innym lub nieznanym poziomie:'));
@@ -289,8 +289,8 @@ test('overview requests 24 hours of persisted history and removes remote footer'
   assert(calls.some(url=>url.includes('/api/history?hours=24&limit=3000')));
   assert(p.state.overviewHistory.some(row=>Date.parse(row.ts)<now-12*3600000));
   const html=p.overviewHtml();
-  assert(html.includes('HISTORIA TEMPERATUR · OSTATNIE 24 GODZINY'));
-  assert.equal((html.match(/Ostatnie 12 godzin/g)||[]).length,6);
+  assert(!html.includes('HISTORIA TEMPERATUR · OSTATNIE 24 GODZINY'));
+  assert.equal((html.match(/Ostatnie 12 godzin/g)||[]).length,5);
   assert(!html.includes('remote-card'));
   assert(!html.includes('DOSTĘP ZDALNY'));
 });
@@ -365,4 +365,14 @@ test('sidebar omits the local V3 Native footer description',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
   assert(!html.includes('Lokalny panel ecoMAX · V3 Native'));
   assert(html.includes('sidebar-version'));
+});
+
+
+test('merged overview starts with hydraulic scheme and omits removed widgets',()=>{
+ const p=panel();p.state.snapshot={connected:true,values:{heating_temp:67.1,feeder_temp:41,outside_temp:9.8,exhaust_temp:74.6,state_label:'Postój'},mixers:{}};
+ const html=p.overviewHtml();
+ assert(html.indexOf('data-installation-scheme') < html.indexOf('OBCIĄŻENIE'));
+ for(const removed of ['URZĄDZENIA / STAN','overviewHistoryCanvas','hero-card','>PODAJNIK</div>','scheme-legend','SCHEMAT HYDRAULICZNY · UKŁAD DEKLAROWANY']) assert(!html.includes(removed),removed);
+ for(const retained of ['67,1','41','9,8','74,6','overviewPowerRuntime','data-open-view="alarms"']) assert(html.includes(retained),retained);
+ assert(html.includes('Temp. podajnika'));
 });

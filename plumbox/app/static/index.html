@@ -8,7 +8,7 @@
     (() => {
       try {
         const saved = localStorage.getItem("plumbox_theme");
-        const theme = ["dark", "light", "oled"].includes(saved) ? saved : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        const theme = ["dark", "light"].includes(saved) ? saved : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
         document.documentElement.dataset.theme = theme;
         const colors = {dark:"#0b1017",light:"#eef1f6",oled:"#07110f"};
         document.querySelector('meta[name="theme-color"]').setAttribute("content", colors[theme]);
@@ -18,8 +18,8 @@
   <title>PlumBox</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=gptsol-75">
-  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-75">
+  <link rel="stylesheet" href="assets/styles.css?v=gptsol-76">
+  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-76">
 </head>
 <body>
   <div class="app-shell">
@@ -35,7 +35,6 @@
       <nav class="side-nav" id="sideNav">
         <div class="nav-group">Kocioł</div>
         <button class="nav-item active" data-view="overview"><span>◈</span>Podgląd</button>
-        <button class="nav-item" data-view="installation"><span>⌁</span>Schemat instalacji</button>
         <button class="nav-item" data-view="heating"><span>♨</span>CO i kocioł</button>
         <button class="nav-item" data-view="work_schedule"><span>◷</span>Praca wg harmonogramu</button>
         <button class="nav-item" data-view="water_heater"><span>❋</span>CWU</button>
@@ -72,7 +71,7 @@
 
       <div class="sidebar-footer">
         <button id="lockButton" class="lock-button">🔒 Odblokuj sterowanie</button>
-        <div class="sidebar-version">PlumBox v2.8.43</div>
+        <div class="sidebar-version">PlumBox v2.8.44</div>
       </div>
     </aside>
 
@@ -89,10 +88,8 @@
           <div class="theme-switch" role="group" aria-label="Motyw kolorystyczny">
             <button type="button" data-theme-set="dark">☾<span>Ciemny</span></button>
             <button type="button" data-theme-set="light">☀<span>Jasny</span></button>
-            <button type="button" data-theme-set="oled">◐<span>OLED</span></button>
           </div>
           <div class="clock"><strong id="clockTime">--:--:--</strong><span id="clockDate">--.--.----</span></div>
-          <div id="modelSourceBadge" class="model-source-pill offline" title="Źródło identyfikacji modelu"><strong>MODEL: —</strong></div>
           <div id="connectionBadge" class="online-pill offline"><i></i><strong>OFFLINE</strong></div>
         </div>
       </header>
@@ -141,9 +138,9 @@
   </dialog>
 
   <div id="toastContainer" class="toast-container"></div>
-  <script src="assets/boiler_views.js?v=gptsol-75" defer></script>
-  <script src="assets/work_schedule.js?v=gptsol-75" defer></script>
-  <script src="assets/app.js?v=gptsol-75" defer></script>
+  <script src="assets/boiler_views.js?v=gptsol-76" defer></script>
+  <script src="assets/work_schedule.js?v=gptsol-76" defer></script>
+  <script src="assets/app.js?v=gptsol-76" defer></script>
 </body>
 </html>
 
