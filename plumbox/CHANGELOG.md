@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.43
+
+- dopasowano schemat instalacji do kolorów motywu ciemnego i OLED, zachowując jasny schemat w motywie jasnym,
+- zdjęcie kotła zastąpiono jego graficznym odpowiednikiem; odczyty i układ instalacji pozostają na dotychczasowych miejscach.
+
 ## 2.8.42
 
 - dopasowano tło i obramowanie karty Czasy pracy do pozostałych kart we wszystkich motywach.

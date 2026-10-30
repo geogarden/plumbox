@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" role="img" aria-label="Graficzny kocioł na pellet">
+  <defs>
+    <linearGradient id="side" x1="0" x2="1"><stop stop-color="#8a969a"/><stop offset="1" stop-color="#c1c8c9"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9b58"/><stop offset=".5" stop-color="#ff7d27"/><stop offset="1" stop-color="#e66514"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2a3438"/><stop offset="1" stop-color="#0e181d"/></linearGradient>
+  </defs>
+  <path d="M172 28h140a5 5 0 0 1 5 5v411a5 5 0 0 1-5 5H172a5 5 0 0 1-5-5V33a5 5 0 0 1 5-5Z" fill="url(#side)" stroke="#707b80" stroke-width="2"/>
+  <path d="M183 28h129a5 5 0 0 1 5 5v411a5 5 0 0 1-5 5H183Z" fill="url(#body)" stroke="#c85613" stroke-width="2"/>
+  <path d="M184 211h132" stroke="#894923" stroke-width="3"/>
+  <path d="M190 35h119M190 218h119" stroke="#ffbb82" stroke-opacity=".48" stroke-width="2"/>
+  <rect x="259" y="39" width="49" height="32" rx="4" fill="#30393a" stroke="#a65c29" stroke-width="2"/>
+  <rect x="264" y="44" width="27" height="18" rx="2" fill="url(#screen)" stroke="#627777" stroke-width="1"/>
+  <path d="M268 49h17M268 53h11M268 57h15" stroke="#8ed3bc" stroke-width="1" opacity=".8"/>
+  <circle cx="300" cy="54" r="3.5" fill="#8f9b99"/>
+  <rect x="303" y="252" width="6" height="29" rx="3" fill="#aa4b12" opacity=".65"/>
+  <rect x="170" y="445" width="18" height="8" rx="2" fill="#364047"/><rect x="294" y="445" width="18" height="8" rx="2" fill="#364047"/>
+</svg>

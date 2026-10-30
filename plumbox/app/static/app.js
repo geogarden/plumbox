@@ -836,7 +836,7 @@
           <div class="scheme-thermostat"><span>TERMOSTAT</span><b>${escapeHtml(thermostatText)}</b></div>
 
           <div class="scheme-boiler scheme-boiler-photo">
-            <img class="scheme-boiler-image" src="assets/sf11130.jpg" width="500" height="500" alt="Kocioł na pellet HKS Lazar SmartFire SF 11/130" decoding="async">
+            <img class="scheme-boiler-image" src="assets/boiler.svg" width="500" height="500" alt="Kocioł na pellet HKS Lazar SmartFire SF 11/130" decoding="async">
             <div class="scheme-boiler-data">
             <div class="scheme-controller" role="status"><i aria-hidden="true"></i><span>${escapeHtml(burner.label).toUpperCase()}</span></div>
             <div class="scheme-boiler-readout"><span>TEMPERATURA KOTŁA</span><b>${escapeHtml(fmt(heating))}<small>°C</small></b><span>zadana ${escapeHtml(fmt(heatingTarget))}°C</span></div>

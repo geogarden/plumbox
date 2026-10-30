@@ -134,7 +134,7 @@ test('notification view shows selected phone and disabled custom threshold',asyn
 });
 
 
-test('boiler photo animation follows controller phase and stops when disconnected', () => {
+test('boiler graphic animation follows controller phase and stops when disconnected', () => {
   const p=panel(async()=>json({}));
   assert.equal(p.schemeBurnerState('Rozpalanie', false, true).phase, 'igniting');
   assert.equal(p.schemeBurnerState('Praca', false, true).phase, 'burning');
@@ -146,12 +146,12 @@ test('boiler photo animation follows controller phase and stops when disconnecte
   assert.equal(p.schemeBurnerState('Nieznany', true, true).phase, 'igniting');
 });
 
-test('photo readouts update from snapshot and preserve missing sensor values', () => {
+test('graphic readouts update from snapshot and preserve missing sensor values', () => {
   const p=panel(async()=>json({}));
   p.state.snapshot={connected:true,values:{state_label:'Rozpalanie',heating_temp:67,heating_target:70,feeder_temp:29,feeder:true,lighter:true}};
   let html=p.installationSchemeHtml();
   assert.match(html, /burner-igniting/);
-  assert.match(html, /sf11130.jpg/);
+  assert.match(html, /boiler.svg/);
   assert.match(html, /<b>67<small>°C<\/small><\/b>/);
   assert.match(html, /Temp. podajnika/);
   assert.match(html, /Podawanie pelletu/);

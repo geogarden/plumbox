@@ -633,3 +633,46 @@
   .installation-scheme *::after { animation: none !important; }
 }
 
+/* Podgląd: ciemne warianty schematu w kolorach wybranego motywu PlumBox. */
+:root:is([data-theme="dark"], [data-theme="oled"]) .installation-scheme .scheme-canvas,
+:root:is([data-theme="dark"], [data-theme="oled"]) .installation-scheme .scheme-plant { background: var(--surface); color: var(--text); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-boiler-image { mix-blend-mode: normal; clip-path: inset(5.4% 36.8% 10.4% 33.4%); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-boiler-readout,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-burner-readout,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-temp { background: var(--surface-2); border-color: var(--line); box-shadow: var(--shadow-soft); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-boiler-readout > b,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-burner-readout > strong,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-temp b { color: var(--text); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-boiler-readout > span,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-burner-readout > span:first-child,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-burner-readout > small,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-feed-status,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-tank > small,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-port span,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-cwu-label,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-separator span,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump small,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-radiator > span,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-temp span { color: var(--muted); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-thermostat b { color: var(--text); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-burner-readout > small b { color: var(--accent); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-flow-note { background: var(--surface-2); border-color: var(--line); color: var(--text); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump-cwu small,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-cwu-feed-v::before { background: var(--surface); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-mixer b,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-atv,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump { background: var(--surface-2); border-color: var(--muted); color: var(--text); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump > span { background: var(--surface-2); border-color: var(--muted); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-port i,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-tank::before,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-tank::after { background: var(--surface-2); border-color: var(--muted); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-radiator > div { background: var(--surface-2); border-color: var(--muted); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-radiator i { background: linear-gradient(90deg, #657587, #c0c9cf, #657587); }
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-tap b,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-tap em,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-tap em::after { background: var(--muted); }
+
+/* Graficzny odpowiednik kotła zachowuje położenie i proporcje zdjęcia. */
+.scheme-boiler-image,
+:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-boiler-image { clip-path: none; mix-blend-mode: normal; }
+
