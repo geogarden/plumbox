@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.42
+
+- dopasowano tło i obramowanie karty Czasy pracy do pozostałych kart we wszystkich motywach.
+
 ## 2.8.41
 
 - dodano na ekranie głównym obok Urządzenia / stan kartę czasów pracy MAX, średnia i minimalna za ostatnie 48 godzin, wraz z udziałami w czasie pracy i paskiem podziału; dane pochodzą z historii PlumBox,

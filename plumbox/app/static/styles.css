@@ -383,7 +383,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
 /* ── podgląd: urządzenia i serwis ─────────────────────────────────────────── */
 .middle-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 #overviewPowerRuntime, #overviewPowerRuntime > .runtime-panel { min-width: 0; height: 100%; }
-.runtime-panel { display: flex; flex-direction: column; gap: 22px; background: color-mix(in srgb, var(--ok) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--ok) 35%, var(--line)); }
+.runtime-panel { display: flex; flex-direction: column; gap: 22px; }
 .runtime-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .runtime-heading .panel-title { margin: 0; }
 .runtime-heading > span { color: var(--muted); font-size: 11px; white-space: nowrap; }
