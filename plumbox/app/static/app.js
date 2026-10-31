@@ -842,15 +842,16 @@
 
           <div class="scheme-pipe scheme-boiler-feed horizontal red"><i></i></div>
           <div class="scheme-pipe scheme-co-supply-h co-flow horizontal red"><i></i></div>
-          <div class="scheme-pipe scheme-co-supply-v co-flow vertical red"><i></i></div>
+          <div class="scheme-pipe scheme-co-supply-v co-flow vertical orange"><i></i></div>
           <div class="scheme-pipe scheme-co-return-v co-flow vertical blue"><i></i></div>
+          <div class="scheme-pipe scheme-mixer-return-link co-flow horizontal blue"><i></i></div>
           <div class="scheme-pipe scheme-co-return-h co-flow horizontal blue"><i></i></div>
           <div class="scheme-pipe scheme-protect-return horizontal blue"><i></i></div>
           <div class="scheme-pipe scheme-atv-branch protect-flow vertical orange"><i></i></div>
 
           <div class="scheme-separator"><span>SPRZĘGŁO</span></div>
-          <div class="scheme-atv">ATV</div>
-          <div class="scheme-mixer"><b>MIX</b></div>
+          <div class="scheme-atv"><img src="assets/valve-atv.svg" width="64" height="64" alt="Zawór termostatyczny ATV"><small>ATV</small></div>
+          <div class="scheme-mixer"><img src="assets/mixer-valve.svg" width="64" height="64" alt="Trójdrogowy zawór mieszający"><small>Mieszacz</small></div>
           <div class="scheme-pump scheme-pump-co${schemePumpClass(coPump)}"><i></i><span></span><small>POMPA CO</small></div>
           <div class="scheme-pump scheme-pump-boiler${schemePumpClass(boilerPump)}"><i></i><span></span><small>POMPA KOTŁOWA</small></div>
           <div class="scheme-radiator"><span>OBIEG GRZEJNIKOWY</span><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>

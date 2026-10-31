@@ -1,3 +1,11 @@
+## 2.8.47
+
+- Zawór ATV i mieszacz mają własne grafiki SVG zamiast kółka ATV i kwadratu MIX.
+- Zasilanie grzejników za mieszaczem ma kolor pomarańczowy (woda zmieszana).
+- Dodano niebieskie połączenie powrotu grzejników z trzecim przyłączem mieszacza.
+- Zachowano sterowanie animacją przez stany pomp; kierunek zasilania zmieszanego jest do grzejnika, a odnogi powrotu do mieszacza.
+- Dodano grafiki do pamięci podręcznej i odświeżono wersję zasobów WWW.
+
 ## 2.8.46
 
 - Panel otwiera się bez osobnego hasła PlumBox. Nastawy i administracja w trybie bez logowania nadal wymagają PIN-u; zapis nastaw zachowuje potwierdzenia i walidację.

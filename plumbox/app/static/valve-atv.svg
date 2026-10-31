@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+ <defs><linearGradient id="atv-brass" x2="0" y2="1"><stop stop-color="#f5dd91"/><stop offset=".45" stop-color="#bc9144"/><stop offset="1" stop-color="#80602c"/></linearGradient><linearGradient id="atv-metal"><stop stop-color="#64788a"/><stop offset=".5" stop-color="#d9e1e5"/><stop offset="1" stop-color="#758390"/></linearGradient></defs>
+ <g stroke="#71572e" stroke-width="1.4" stroke-linejoin="round">
+  <path d="M1 26h19v12H1zM44 26h19v12H44zM26 1h12v20H26z" fill="url(#atv-metal)"/>
+  <path d="M10 22h8v20h-8zM46 22h8v20h-8zM22 10h20v8H22z" fill="url(#atv-brass)"/>
+  <path d="M19 23l7-5h12l7 5v18l-7 5H26l-7-5z" fill="url(#atv-brass)"/>
+  <circle cx="32" cy="32" r="12" fill="url(#atv-brass)"/>
+ </g>
+ <path d="M23 33h18v18l-4 5H27l-4-5z" fill="#253541" stroke="#94a3ae" stroke-width="1.4"/>
+ <path d="M26 40v10m4-10v12m4-12v12m4-12v10" stroke="#66808c" stroke-width="1.4"/>
+ <circle cx="32" cy="30" r="7" fill="#344a54" stroke="#dfc486" stroke-width="2"/>
+ <path d="M32 26v5" stroke="#e7edf0" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

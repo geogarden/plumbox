@@ -384,39 +384,14 @@
   text-align: center;
 }
 
-.scheme-atv {
-  position: absolute;
-  left: 537px;
-  top: 426px;
-  z-index: 9;
-  width: 51px;
-  height: 51px;
-  display: grid;
-  place-items: center;
-  border: 3px solid #34373b;
-  border-radius: 50%;
-  background: #fff;
-  color: #34373b;
-  font-size: 11px;
-  font-weight: 950;
-}
-.scheme-mixer {
-  position: absolute;
-  left: 817px;
-  top: 290px;
-  z-index: 8;
-}
-.scheme-mixer b {
-  width: 43px;
-  height: 43px;
-  display: grid;
-  place-items: center;
-  border: 2px solid #30343a;
-  background: #fff;
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: .08em;
-}
+.scheme-atv, .scheme-mixer {position:absolute;z-index:9;width:64px;height:64px}
+.scheme-atv {left:531.5px;top:424.5px}
+.scheme-mixer {left:804.5px;top:282.5px}
+.scheme-atv img,.scheme-mixer img {display:block;width:64px;height:64px}
+.scheme-atv small,.scheme-mixer small {position:absolute;top:64px;left:-8px;right:-8px;text-align:center;color:var(--muted,#64737d);font-size:10px;font-weight:700}
+.scheme-mixer-return-link {left:836px;top:311px;width:46px}
+/* Zasilanie po zmieszaniu płynie w górę do grzejnika. */
+.scheme-pipe.scheme-co-supply-v.orange > i::after {animation-name:scheme-flow-up}
 
 .scheme-pump {
   position: absolute;
@@ -657,8 +632,6 @@
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-flow-note { background: var(--surface-2); border-color: var(--line); color: var(--text); }
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump-cwu small,
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-cwu-feed-v::before { background: var(--surface); }
-:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-mixer b,
-:root:is([data-theme="dark"], [data-theme="oled"]) .scheme-atv,
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump { background: var(--surface-2); border-color: var(--muted); color: var(--text); }
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-pump > span { background: var(--surface-2); border-color: var(--muted); }
 :root:is([data-theme="dark"], [data-theme="oled"]) .scheme-port i,

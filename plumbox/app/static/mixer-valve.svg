@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+ <defs><linearGradient id="mix-brass" x2="0" y2="1"><stop stop-color="#f4da8c"/><stop offset=".5" stop-color="#b98b3d"/><stop offset="1" stop-color="#775728"/></linearGradient><linearGradient id="mix-metal"><stop stop-color="#69818d"/><stop offset=".5" stop-color="#dfe7e9"/><stop offset="1" stop-color="#70818b"/></linearGradient></defs>
+ <path d="M0 28h20v8H0zM44 28h20v8H44zM28 0h8v20h-8z" fill="url(#mix-metal)" stroke="#667f89" stroke-width="1.2"/>
+ <path d="M10 24h9v16h-9zM45 24h9v16h-9zM24 10h16v9H24z" fill="url(#mix-brass)" stroke="#8c6931" stroke-width="1.2"/>
+ <circle cx="32" cy="32" r="17" fill="url(#mix-brass)" stroke="#745a2e" stroke-width="1.5"/>
+ <circle cx="32" cy="32" r="12" fill="#263640" stroke="#d3bc7e" stroke-width="1.5"/>
+ <path d="M32 32L21 37a12 12 0 0 1 0-10z" fill="#df5860"/><path d="M32 32l11-5a12 12 0 0 1 0 10z" fill="#38b4da"/><path d="M32 32l-5-11a12 12 0 0 1 10 0z" fill="#eda04c"/>
+ <path d="M22 44h20v14H22z" fill="#354b59" stroke="#a3b3bc" stroke-width="1.4"/>
+ <rect x="27" y="48" width="10" height="5" rx="1" fill="#96a9aa"/>
+ <path d="M32 32v-6" stroke="#e6ecee" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="32" r="3" fill="#d3dee3"/>
+</svg>

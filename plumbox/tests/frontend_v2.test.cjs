@@ -402,3 +402,15 @@ test('cycle summary retains readings without the recent cycles table',async()=>{
  assert(source.includes('id="runtimeCyclesView"'));
 });
 
+
+test('radiator circuit mixes hot feed and cold return with local valve graphics',()=>{
+ const p=panel();p.state.snapshot={connected:true,values:{},mixers:{'0':{values:{pump:true}}}};
+ const html=p.installationSchemeHtml();
+ assert(html.includes('scheme-co-supply-v co-flow vertical orange'));
+ assert(html.includes('scheme-mixer-return-link co-flow horizontal blue'));
+ assert(html.includes('assets/valve-atv.svg'));
+ assert(html.includes('assets/mixer-valve.svg'));
+ assert(!html.includes('<b>MIX</b>'));
+ assert(!html.includes('<div class="scheme-atv">ATV</div>'));
+ assert(html.includes('co-active'));
+});
