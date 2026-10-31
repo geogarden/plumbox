@@ -10,8 +10,8 @@ def test_installation_scheme_is_registered_as_a_native_view():
 
     assert 'data-view="installation"' not in index
     assert 'data-view="overview"' in index
-    assert 'scheme.css?v=gptsol-79' in index
-    assert 'app.js?v=gptsol-79' in index
+    assert 'scheme.css?v=gptsol-80' in index
+    assert 'app.js?v=gptsol-80' in index
     assert 'installation: "SCHEMAT INSTALACJI"' in script
     assert "installationSchemeHtml" in script
     assert "UKŁAD DEKLAROWANY" not in script

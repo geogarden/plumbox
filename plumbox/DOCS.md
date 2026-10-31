@@ -1,4 +1,4 @@
-# Dokumentacja PlumBox 2.8.0 GPT SOL 1
+# Dokumentacja PlumBox
 
 ## Proces aplikacji
 

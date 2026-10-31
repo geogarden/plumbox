@@ -1296,6 +1296,26 @@
     if (!canvas.__hoverBound) { canvas.__hoverBound = true; bindChartHover(canvas); }
   }
 
+  // Find real whole hours on the same sample-index axis as lines and hover.
+  function hourlyChartTicks(rows) {
+    const points = [];
+    rows.forEach((row, index) => {
+      const time = Date.parse(row.ts);
+      if (Number.isFinite(time) && (!points.length || time > points[points.length - 1].time)) points.push({time,index});
+    });
+    if (points.length < 2) return [];
+    const first = points[0].time, last = points[points.length - 1].time, hour = 3600000;
+    const ticks = [];
+    let right = 1;
+    for (let time = Math.ceil(first / hour) * hour; time <= last; time += hour) {
+      while (right < points.length - 1 && points[right].time < time) right++;
+      const left = points[right - 1], next = points[right];
+      const index = left.index + (next.index - left.index) * (time - left.time) / (next.time - left.time);
+      ticks.push({time,index});
+    }
+    return ticks;
+  }
+
   function paintLineChart(canvas, hoverIndex, hoverKey = null) {
     const { rows, series, compact } = canvas.__chartArgs;
     const visible = series.filter(([key]) => !state.hiddenSeries.has(key));
@@ -1322,36 +1342,32 @@
     canvas.__layout = { pad, plotW, plotH, min, range };
     ctx.fillText("°C", 3, 14);
     for (let i=0;i<=3;i++) { const y=pad.top+plotH*i/3; ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(width-pad.right,y); ctx.stroke(); ctx.fillText(String(Math.round(max-range*i/3)),3,y+4); }
-    if (!compact && rows.length > 0) {
-      // Labels refer to the same sample positions used by the lines and hover.
-      const intervals = Math.min(6, Math.max(1, Math.floor(plotW / 90))), used = new Set();
-      const timeFormat = new Intl.DateTimeFormat("pl-PL", { hour: "2-digit", minute: "2-digit" });
-      const dayFormat = new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit" });
-      const first = new Date(rows[0].ts), last = new Date(rows[rows.length - 1].ts);
-      const showDate = Number.isFinite(first.getTime()) && Number.isFinite(last.getTime())
-        && (first.toDateString() !== last.toDateString());
+    if (!compact && rows.length > 1) {
+      const ticks = hourlyChartTicks(rows);
+      const xFor = tick => pad.left + plotW * tick.index / Math.max(1, rows.length - 1);
+      const spacing = ticks.length > 1 ? plotW / (ticks.length - 1) : plotW;
+      const needed = Math.max(1, Math.ceil(90 / Math.max(1, spacing)));
+      const labelStep = [1,2,3,4,6,12,24,48,72,168].find(step => step >= needed) || Math.ceil(needed / 24) * 24;
+      const timeFormat = new Intl.DateTimeFormat("pl-PL", {hour:"2-digit",minute:"2-digit",timeZone:"Europe/Warsaw"});
       ctx.save();
-      ctx.fillStyle = cssColor("--chart-ink", "#89949d");
       ctx.strokeStyle = cssColor("--chart-grid", "rgba(255,255,255,.08)");
       ctx.lineWidth = 1;
+      // All hourly lines remain, even when time labels are thinned on phones.
+      ctx.globalAlpha = spacing < 6 ? 0.35 : 1;
+      ctx.beginPath();
+      ticks.forEach(tick => {const x=xFor(tick);ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+plotH);});
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = cssColor("--chart-ink", "#89949d");
       ctx.font = "500 12px system-ui";
       ctx.textBaseline = "alphabetic";
-      for (let i = 0; i <= intervals; i++) {
-        const index = Math.round(i * (rows.length - 1) / intervals);
-        if (used.has(index)) continue;
-        used.add(index);
-        const date = new Date(rows[index].ts);
-        if (!Number.isFinite(date.getTime())) continue;
-        const x = pad.left + plotW * index / Math.max(1, rows.length - 1);
-        ctx.textAlign = index === 0 ? "left" : index === rows.length - 1 ? "right" : "center";
-        ctx.beginPath(); ctx.moveTo(x, pad.top + plotH); ctx.lineTo(x, pad.top + plotH + 5); ctx.stroke();
-        ctx.fillText(timeFormat.format(date), x, height - (showDate ? 24 : 14));
-        if (showDate) {
-          ctx.font = "500 11px system-ui";
-          ctx.fillText(dayFormat.format(date), x, height - 8);
-          ctx.font = "500 12px system-ui";
-        }
-      }
+      ticks.forEach((tick, ordinal) => {
+        if (ordinal % labelStep !== 0) return;
+        const x=xFor(tick), date=new Date(tick.time);
+        ctx.textAlign = x < pad.left+30 ? "left" : x > width-pad.right-30 ? "right" : "center";
+        ctx.beginPath();ctx.moveTo(x,pad.top+plotH);ctx.lineTo(x,pad.top+plotH+5);ctx.stroke();
+        ctx.fillText(timeFormat.format(date),x,height-14);
+      });
       ctx.restore();
     }
     // Przy najeździe wyróżniamy tylko serię najbliższą kursorowi:

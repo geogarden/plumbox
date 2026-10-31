@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary, hourlyChartTicks};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -344,19 +344,22 @@ test('weather options are in Mixer and lambda options are in CO and boiler',()=>
 test('history canvas draws aligned time labels below plot and reduces density on phones',()=>{
   const p=panel(),rows=Array.from({length:49},(_,i)=>({ts:new Date(Date.UTC(2026,9,26,18)+i*1800000).toISOString(),heating_temp:65+i%6}));
   function draw(width,compact=false){
-    const labels=[],context={fillText:(text,x,y)=>labels.push({text,x,y})};
+    const labels=[],segments=[],context={fillText:(text,x,y)=>labels.push({text,x,y})};
     for(const name of ['setTransform','clearRect','beginPath','moveTo','lineTo','stroke','save','restore'])context[name]=()=>{};
+    context.moveTo=(x,y)=>{context.last={x,y}};context.lineTo=(x,y)=>segments.push({from:context.last,to:{x,y}});
     const canvas={getBoundingClientRect:()=>({width,height:300}),getContext:()=>context,__chartArgs:{rows,series:[['heating_temp','#f80','Kocioł']],compact}};
     p.paintLineChart(canvas,null);
-    return {labels:labels.filter(l=>l.y>canvas.__layout.pad.top+canvas.__layout.plotH),layout:canvas.__layout};
+    return {labels:labels.filter(l=>l.y>canvas.__layout.pad.top+canvas.__layout.plotH),layout:canvas.__layout,vertical:segments.filter(s=>s.from?.x===s.to.x&&s.from.y===canvas.__layout.pad.top&&s.to.y===canvas.__layout.pad.top+canvas.__layout.plotH)};
   }
   const desktop=draw(736),phone=draw(320);
+  assert.equal(desktop.vertical.length,25);assert.equal(phone.vertical.length,25);
   const times=labels=>labels.filter(l=>/^\d{2}:\d{2}$/.test(l.text));
   assert.equal(times(desktop.labels).length,7);
   assert.equal(times(phone.labels).length,3);
-  assert.equal(times(desktop.labels)[0].text,new Date(rows[0].ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}));
-  assert.equal(times(desktop.labels).at(-1).text,new Date(rows.at(-1).ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}));
-  assert(desktop.labels.some(l=>/^\d{2}\.\d{2}/.test(l.text)));
+  assert.equal(times(desktop.labels)[0].text,new Date(rows[0].ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Warsaw'}));
+  assert.equal(times(desktop.labels).at(-1).text,new Date(rows.at(-1).ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Warsaw'}));
+  assert(!desktop.labels.some(l=>/^\d{2}\.\d{2}/.test(l.text)));
+  assert(desktop.labels.filter(l=>l.y>desktop.layout.pad.top+desktop.layout.plotH+5).every(l=>/^\d{2}:\d{2}$/.test(l.text)));
   assert.equal(times(phone.labels)[0].x,phone.layout.pad.left);
   assert.equal(times(phone.labels).at(-1).x,phone.layout.pad.left+phone.layout.plotW);
   assert.equal(times(draw(320,true).labels).length,0);
@@ -413,4 +416,16 @@ test('radiator circuit mixes hot feed and cold return with local valve graphics'
  assert(!html.includes('<b>MIX</b>'));
  assert(!html.includes('<div class="scheme-atv">ATV</div>'));
  assert(html.includes('co-active'));
+});
+
+
+test('hourly grid interpolates whole hours between irregular samples and skips invalid times',()=>{
+ const p=panel();
+ const ticks=p.hourlyChartTicks([{ts:'bad'},{ts:'2026-10-31T06:20:00Z'},{ts:'2026-10-31T07:20:00Z'},{ts:'2026-10-31T09:20:00Z'}]);
+ assert.equal(ticks.length,3);
+ assert.equal(ticks[0].time,Date.parse('2026-10-31T07:00:00Z'));
+ assert(Math.abs(ticks[0].index-5/3)<1e-8);
+ assert(Math.abs(ticks[1].index-7/3)<1e-8);
+ assert.equal(p.hourlyChartTicks([{ts:'bad'}]).length,0);
+ assert.equal(fs.readFileSync(path.join(__dirname,'../DOCS.md'),'utf8').split('\n')[0],'# Dokumentacja PlumBox');
 });

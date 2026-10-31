@@ -1,3 +1,10 @@
+## 2.8.48
+
+- Historia temperatur: pionowa siatka na każdej pełnej godzinie, także przy nieregularnych próbkach.
+- Pod wykresem są wyłącznie godziny w strefie Europe/Warsaw; liczba podpisów dopasowuje się do szerokości.
+- Nagłówek dokumentacji skrócono do „Dokumentacja PlumBox”.
+- Odświeżono pamięć podręczną zasobów WWW.
+
 ## 2.8.47
 
 - Zawór ATV i mieszacz mają własne grafiki SVG zamiast kółka ATV i kwadratu MIX.
