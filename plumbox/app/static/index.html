@@ -18,12 +18,13 @@
   <title>PlumBox</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=gptsol-80">
-  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-80">
+  <link rel="stylesheet" href="assets/styles.css?v=gptsol-81">
+  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-81">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
+      <button type="button" id="sidebarToggle" class="sidebar-toggle" aria-controls="sideNav" aria-expanded="true" aria-label="Zwiń panel boczny" title="Zwiń panel boczny">«</button>
       <div class="brand">
         <img src="assets/icon.svg" alt="" class="brand-logo">
         <div>
@@ -34,43 +35,43 @@
 
       <nav class="side-nav" id="sideNav">
         <div class="nav-group">Kocioł</div>
-        <button class="nav-item active" data-view="overview"><span>◈</span>Podgląd</button>
-        <button class="nav-item" data-view="heating"><span>♨</span>CO i kocioł</button>
-        <button class="nav-item" data-view="work_schedule"><span>◷</span>Praca wg harmonogramu</button>
-        <button class="nav-item" data-view="water_heater"><span>❋</span>CWU</button>
-        <button class="nav-item" data-view="summer"><span>☀</span>Lato / Zima / Auto</button>
-        <button class="nav-item" data-view="mixer"><span>❖</span>Mieszacz</button>
+        <button class="nav-item active" data-view="overview" title="Podgląd" aria-label="Podgląd"><span>◈</span><span class="nav-label">Podgląd</span></button>
+        <button class="nav-item" data-view="heating" title="CO i kocioł" aria-label="CO i kocioł"><span>♨</span><span class="nav-label">CO i kocioł</span></button>
+        <button class="nav-item" data-view="work_schedule" title="Praca wg harmonogramu" aria-label="Praca wg harmonogramu"><span>◷</span><span class="nav-label">Praca wg harmonogramu</span></button>
+        <button class="nav-item" data-view="water_heater" title="CWU" aria-label="CWU"><span>❋</span><span class="nav-label">CWU</span></button>
+        <button class="nav-item" data-view="summer" title="Lato / Zima / Auto" aria-label="Lato / Zima / Auto"><span>☀</span><span class="nav-label">Lato / Zima / Auto</span></button>
+        <button class="nav-item" data-view="mixer" title="Mieszacz" aria-label="Mieszacz"><span>❖</span><span class="nav-label">Mieszacz</span></button>
 
         <div class="nav-group">Spalanie</div>
-        <button class="nav-item" data-view="hysteresis"><span>≋</span>H1/H2 i histereza</button>
-        <button class="nav-item" data-view="airflow"><span>≈</span>Korekty nadmuchu</button>
+        <button class="nav-item" data-view="hysteresis" title="H1/H2 i histereza" aria-label="H1/H2 i histereza"><span>≋</span><span class="nav-label">H1/H2 i histereza</span></button>
+        <button class="nav-item" data-view="airflow" title="Korekty nadmuchu" aria-label="Korekty nadmuchu"><span>≈</span><span class="nav-label">Korekty nadmuchu</span></button>
 
         <div class="nav-group">Serwis</div>
-        <button class="nav-item" data-view="fuel_calibration"><span>⚙</span>Praca</button>
-        <button class="nav-item" data-view="kindling"><span>✦</span>Rozpalanie</button>
-        <button class="nav-item" data-view="supervision"><span>◎</span>Nadzór</button>
-        <button class="nav-item" data-view="burning_off"><span>◑</span>Wygaszanie</button>
-        <button class="nav-item" data-view="cleaning"><span>✧</span>Czyszczenie</button>
-        <button class="nav-item" data-view="protections"><span>▣</span>Zabezpieczenia</button>
+        <button class="nav-item" data-view="fuel_calibration" title="Praca" aria-label="Praca"><span>⚙</span><span class="nav-label">Praca</span></button>
+        <button class="nav-item" data-view="kindling" title="Rozpalanie" aria-label="Rozpalanie"><span>✦</span><span class="nav-label">Rozpalanie</span></button>
+        <button class="nav-item" data-view="supervision" title="Nadzór" aria-label="Nadzór"><span>◎</span><span class="nav-label">Nadzór</span></button>
+        <button class="nav-item" data-view="burning_off" title="Wygaszanie" aria-label="Wygaszanie"><span>◑</span><span class="nav-label">Wygaszanie</span></button>
+        <button class="nav-item" data-view="cleaning" title="Czyszczenie" aria-label="Czyszczenie"><span>✧</span><span class="nav-label">Czyszczenie</span></button>
+        <button class="nav-item" data-view="protections" title="Zabezpieczenia" aria-label="Zabezpieczenia"><span>▣</span><span class="nav-label">Zabezpieczenia</span></button>
 
         <div class="nav-group">Dane</div>
-        <button class="nav-item" data-view="alarms"><span>△</span>Alarmy</button>
-        <button class="nav-item" data-view="history"><span>◫</span>Historia temperatur</button>
-        <button class="nav-item" data-view="runtime"><span>◷</span>Czasy pracy</button>
-        <button class="nav-item" data-view="all"><span>≡</span>Pełna lista</button>
-        <button class="nav-item" data-view="system"><span>◉</span>Stan systemu</button>
-        <button class="nav-item" data-view="audit"><span>✎</span>Dziennik zmian</button>
+        <button class="nav-item" data-view="alarms" title="Alarmy" aria-label="Alarmy"><span>△</span><span class="nav-label">Alarmy</span></button>
+        <button class="nav-item" data-view="history" title="Historia temperatur" aria-label="Historia temperatur"><span>◫</span><span class="nav-label">Historia temperatur</span></button>
+        <button class="nav-item" data-view="runtime" title="Czasy pracy" aria-label="Czasy pracy"><span>◷</span><span class="nav-label">Czasy pracy</span></button>
+        <button class="nav-item" data-view="all" title="Pełna lista" aria-label="Pełna lista"><span>≡</span><span class="nav-label">Pełna lista</span></button>
+        <button class="nav-item" data-view="system" title="Stan systemu" aria-label="Stan systemu"><span>◉</span><span class="nav-label">Stan systemu</span></button>
+        <button class="nav-item" data-view="audit" title="Dziennik zmian" aria-label="Dziennik zmian"><span>✎</span><span class="nav-label">Dziennik zmian</span></button>
 
         <div class="nav-group">System</div>
-        <button class="nav-item" data-view="communication"><span>⇄</span>Komunikacja i MQTT</button>
-        <button class="nav-item" data-view="users"><span>♟</span>Użytkownicy</button>
-        <button class="nav-item" data-view="account"><span>⚿</span>Moje konto / hasło</button>
-        <a class="nav-item" id="logoutLink" href="logout"><span>⏻</span>Wyloguj</a>
+        <button class="nav-item" data-view="communication" title="Komunikacja i MQTT" aria-label="Komunikacja i MQTT"><span>⇄</span><span class="nav-label">Komunikacja i MQTT</span></button>
+        <button class="nav-item" data-view="users" title="Użytkownicy" aria-label="Użytkownicy"><span>♟</span><span class="nav-label">Użytkownicy</span></button>
+        <button class="nav-item" data-view="account" title="Moje konto / hasło" aria-label="Moje konto / hasło"><span>⚿</span><span class="nav-label">Moje konto / hasło</span></button>
+        <a class="nav-item" id="logoutLink" href="logout" title="Wyloguj" aria-label="Wyloguj"><span>⏻</span><span class="nav-label">Wyloguj</span></a>
       </nav>
 
       <div class="sidebar-footer">
         <button id="lockButton" class="lock-button">🔒 Odblokuj sterowanie</button>
-        <div class="sidebar-version">PlumBox v2.8.48</div>
+        <div class="sidebar-version">PlumBox v2.8.49</div>
       </div>
     </aside>
 
@@ -137,9 +138,9 @@
   </dialog>
 
   <div id="toastContainer" class="toast-container"></div>
-  <script src="assets/boiler_views.js?v=gptsol-80" defer></script>
-  <script src="assets/work_schedule.js?v=gptsol-80" defer></script>
-  <script src="assets/app.js?v=gptsol-80" defer></script>
+  <script src="assets/boiler_views.js?v=gptsol-81" defer></script>
+  <script src="assets/work_schedule.js?v=gptsol-81" defer></script>
+  <script src="assets/app.js?v=gptsol-81" defer></script>
 </body>
 </html>
 

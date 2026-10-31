@@ -429,3 +429,30 @@ test('hourly grid interpolates whole hours between irregular samples and skips i
  assert.equal(p.hourlyChartTicks([{ts:'bad'}]).length,0);
  assert.equal(fs.readFileSync(path.join(__dirname,'../DOCS.md'),'utf8').split('\n')[0],'# Dokumentacja PlumBox');
 });
+
+
+test('lambda scheme readout follows live oxygen, including zero and missing data',()=>{
+ const p=panel();
+ for(const [connected,value,text] of [[true,8.64,'8,6%'],[true,0,'0,0%'],[true,null,'—%'],[false,8.6,'—%']]){
+  p.state.snapshot={connected,values:{lambda_level:value}};
+  const html=p.installationSchemeHtml();
+  assert(html.includes('TLEN O₂ <b>'+text+'</b>'));
+  assert(html.indexOf('class="scheme-exhaust"')<html.indexOf('class="scheme-oxygen"'));
+ }
+});
+
+test('sidebar collapse restores saved preference and keeps accessible labels',()=>{
+ const attrs={},store=new Map([['plumbox-sidebar-collapsed','1']]);let collapsed,click,resizes=0;
+ const button={setAttribute:(k,v)=>attrs[k]=v,addEventListener:(_,fn)=>click=fn};
+ const shell={classList:{toggle:(_,v)=>collapsed=v}};
+ const code=source.slice(source.indexOf('  function initSidebarCollapse()'),source.indexOf('  async function init()'));
+ vm.runInNewContext(code+';initSidebarCollapse();',{
+  document:{querySelector:()=>shell},$:()=>button,
+  localStorage:{getItem:k=>store.get(k),setItem:(k,v)=>store.set(k,v)},
+  window:{dispatchEvent:()=>resizes++},Event:class{}
+ });
+ assert.equal(collapsed,true);assert.equal(attrs['aria-expanded'],'false');assert.equal(button.textContent,'»');
+ click();assert.equal(collapsed,false);assert.equal(attrs['aria-expanded'],'true');assert.equal(store.get('plumbox-sidebar-collapsed'),'0');assert.equal(resizes,1);
+ const html=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
+ assert(html.includes('id="sidebarToggle"'));assert(html.includes('title="Historia temperatur" aria-label="Historia temperatur"'));
+});

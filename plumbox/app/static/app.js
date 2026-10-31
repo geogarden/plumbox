@@ -777,6 +777,8 @@
     const feederTemp = finiteNumber(val("feeder_temp", null));
     const outsideTemp = finiteNumber(firstSnapshotValue(["outside_temp", "external_temp", "weather_temp"]));
     const exhaustTemp = finiteNumber(val("exhaust_temp", null));
+    const oxygen = state.snapshot?.connected ? finiteNumber(val("lambda_level", null)) : null;
+    const oxygenText = oxygen === null ? "—" : oxygen.toFixed(1).replace(".", ",");
     const exhaustText = exhaustTemp === null ? "—" : exhaustTemp.toFixed(1).replace(".", ",");
 
     // Animacje pokazują wyłącznie stany odebrane ze sterownika. Brak flagi
@@ -822,6 +824,7 @@
         <div class="scheme-plant">
           <div class="scheme-weather">ZEWN. <b>${escapeHtml(fmt(outsideTemp))}°C</b></div>
           <div class="scheme-exhaust" aria-label="Temperatura spalin">SPALINY <b>${escapeHtml(exhaustText)}°C</b></div>
+          <div class="scheme-oxygen" aria-label="Poziom tlenu z sondy lambda">TLEN O₂ <b>${escapeHtml(oxygenText)}%</b></div>
           <div class="scheme-thermostat"><span>TERMOSTAT</span><b>${escapeHtml(thermostatText)}</b></div>
 
           <div class="scheme-boiler scheme-boiler-photo">
@@ -1942,7 +1945,27 @@
     window.addEventListener("online", recover);
   }
 
+  function initSidebarCollapse() {
+    const shell = document.querySelector(".app-shell"), toggle = $("sidebarToggle");
+    const apply = collapsed => {
+      shell.classList.toggle("sidebar-collapsed", collapsed);
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+      toggle.setAttribute("aria-label", collapsed ? "Rozwiń panel boczny" : "Zwiń panel boczny");
+      toggle.title = collapsed ? "Rozwiń panel boczny" : "Zwiń panel boczny";
+      toggle.textContent = collapsed ? "»" : "«";
+    };
+    let collapsed = false;
+    try { collapsed = localStorage.getItem("plumbox-sidebar-collapsed") === "1"; } catch (_) {}
+    apply(collapsed);
+    toggle.addEventListener("click", () => {
+      collapsed = !collapsed; apply(collapsed);
+      try { localStorage.setItem("plumbox-sidebar-collapsed", collapsed ? "1" : "0"); } catch (_) {}
+      window.dispatchEvent(new Event("resize"));
+    });
+  }
+
   async function init() {
+    initSidebarCollapse();
     initTheme();
     updateClock(); setInterval(updateClock,1000);
     installAppResumeRecovery();

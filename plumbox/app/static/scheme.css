@@ -121,7 +121,7 @@
   gap: 4px;
   padding: 6px 10px;
   border-radius: 99px;
-  background: #e87922;
+  background: #984512;
   color: #fff;
   font-size: 12px;
   font-weight: 800;
@@ -653,3 +653,5 @@
 .scheme-feed-status.active .scheme-feeder-gear {color:var(--scheme-green,#27c96f);animation:scheme-feeder-spin 2s linear infinite}
 @keyframes scheme-feeder-spin {to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.scheme-feed-status.active .scheme-feeder-gear{animation:none}}
+
+.scheme-oxygen {position:absolute;z-index:10;left:16px;top:114px;width:158px;min-height:24px;display:flex;align-items:center;justify-content:center;gap:5px;padding:4px 10px;border-radius:99px;background:#285c9d;color:#fff;font-size:12px;font-weight:800;white-space:nowrap}

@@ -1,3 +1,10 @@
+## 2.8.49
+
+- Menu boczne na komputerze można zwinąć do ikon; wybór jest zapamiętywany lokalnie. Ikony zachowują nazwy dostępności i podpowiedzi.
+- Pod temperaturą spalin na schemacie dodano poziom tlenu z sondy lambda (lambda_level), z jednym miejscem po przecinku. Brak danych lub połączenia pokazuje kreskę.
+- Przyciemniono pomarańczowe tło temperatury spalin.
+- Odświeżono pamięć podręczną zasobów WWW.
+
 ## 2.8.48
 
 - Historia temperatur: pionowa siatka na każdej pełnej godzinie, także przy nieregularnych próbkach.
