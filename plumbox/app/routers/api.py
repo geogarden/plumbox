@@ -122,7 +122,8 @@ async def public_config() -> dict[str, Any]:
         "connection_type": state.config.connection.type,
         "history_enabled": state.config.history.enabled,
         "mqtt_enabled": state.config.mqtt.enabled,
-        "pin_required": state.config.security.require_pin_for_all_writes,
+        "pin_required": state.config.security.require_pin_for_all_writes or not state.config.security.login_required,
+        "login_required": state.config.security.login_required,
     }
 
 

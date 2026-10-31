@@ -560,6 +560,22 @@
     </article>`;
   }
 
+  let cycleSummaryHtml = "", cycleSummaryReadAt = 0, cycleSummaryInFlight = null;
+  function refreshCycleSummary() {
+    const target = $("runtimeCyclesView");
+    if (state.activeView === "runtime" && target) target.innerHTML = cycleSummaryHtml;
+  }
+  async function loadCycleSummary(force = false) {
+    if (cycleSummaryInFlight) return cycleSummaryInFlight;
+    if (!force && Date.now() - cycleSummaryReadAt < 5000) { refreshCycleSummary(); return; }
+    cycleSummaryInFlight = (async () => {
+      try { cycleSummaryHtml = await window.PlumBoxBoilerViews.statistics({api,escapeHtml,formatDate}); }
+      catch (error) { cycleSummaryHtml = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
+      finally { cycleSummaryReadAt = Date.now(); refreshCycleSummary(); }
+    })();
+    try { await cycleSummaryInFlight; } finally { cycleSummaryInFlight = null; }
+  }
+
   function refreshRuntimeWidgets() {
     const target = $("overviewPowerRuntime") || $("powerRuntimeView");
     if (!target) return;
@@ -1663,6 +1679,7 @@
 
   async function render() {
     if (state.activeView === "installation") state.activeView = "overview";
+    if (state.activeView === "statistics") state.activeView = "runtime";
     if (!state.snapshot) { content.innerHTML = `<div class="loading-card">Oczekiwanie na dane…</div>`; return; }
     setConnectionUi();
     $("viewTitle").textContent = titles[state.activeView] || "PLUMBOX";
@@ -1717,7 +1734,8 @@
       content.innerHTML = filteredHtml(view);
     }
     else if (state.activeView === "runtime") {
-      content.innerHTML = `<section id="powerRuntimeView">${powerRuntimeHtml(true)}</section>`;
+      content.innerHTML = `<section id="powerRuntimeView">${powerRuntimeHtml(true)}</section><section id="runtimeCyclesView" style="margin-top:20px">${cycleSummaryHtml || '<div class="loading-card">Odczyt cykli…</div>'}</section>`;
+      loadCycleSummary();
       loadPowerRuntime().then(refreshRuntimeWidgets);
     }
     else if (state.activeView === "alarms") content.innerHTML = await alarmsHtml();
@@ -1865,6 +1883,9 @@
         ]);
         state.catalog = catalog;
         state.publicConfig = publicConfig;
+        if (publicConfig.login_required === false) {
+          document.querySelectorAll('[data-view="account"],[data-view="users"],#logoutLink').forEach(el => el.classList.add("hidden"));
+        }
         state.snapshot = snapshot;
         state.initialized = true;
       } catch (error) {
@@ -1959,7 +1980,7 @@
       }
       if (state.activeView === "hysteresis") loadPowerRuntime().then(refreshHysteresisSummary);
       if (state.activeView === "overview" || state.activeView === "runtime") loadPowerRuntime().then(refreshRuntimeWidgets);
-      if (state.activeView === "statistics") render().catch(() => {});
+      if (state.activeView === "runtime") loadCycleSummary();
       if (Date.now() - state.authCheckedAt > 30000) {
         const previousAccess = `${state.role}:${state.unlocked}`;
         checkAuth().then(() => { if (!state.authExpired && previousAccess !== `${state.role}:${state.unlocked}`) render(); });

@@ -16,7 +16,6 @@
       ? "W symulacji nie zapisujemy cykli kotła ani nie wysyłamy alarmów."
       : !data.fresh ? "Brak świeżego odczytu. Licznik nie uzupełnia przerwy zgadywanymi danymi."
       : "Cykl trwa od rozpoczęcia rozpalania do wyłączenia albo postoju po wygaszaniu. Samo wygaszanie nie zatrzymuje licznika.");
-    const rows = data.cycles.slice(0, 30).map(row => '<tr><td>' + esc(date(row.started_at)) + '</td><td>' + esc(date(row.ended_at)) + '</td><td>' + esc(duration(row.duration_seconds)) + '</td><td>' + esc(duration(row.observed_seconds)) + '</td><td>' + esc(row.complete ? "Pełny" : "Niepełne dane") + '</td></tr>').join("");
     return '<section class="panel"><h2>Statystyki cykli kotła</h2><p>' + esc(note) + '</p></section>' +
       '<div class="summary-grid">' +
       card("Bieżący cykl", c ? c.started_at ? duration(c.duration_seconds) : "Początek nieznany" : "Brak aktywnego cyklu") +
@@ -28,7 +27,7 @@
       card("Zaobserwowany czas cykli w miesiącu", duration(data.observed_month_seconds)) +
       '</div>' +
       (c && (!c.started_at || c.has_gap) ? '<div class="warning-strip">Bieżący cykl ma nieznany początek lub lukę w odczytach. Zaobserwowany czas: ' + esc(duration(c.observed_seconds)) + '.</div>' : '') +
-      '<section class="panel"><h3>Ostatnie cykle</h3><p>Statystyki są zbierane od uruchomienia tej funkcji. Czas obserwacji obejmuje tylko odcinki ze świeżymi danymi. Strefa: ' + esc(data.timezone) + '.</p><div class="table-wrap"><table><thead><tr><th>Rozpalanie</th><th>Koniec</th><th>Czas cyklu</th><th>Czas obserwacji</th><th>Jakość danych</th></tr></thead><tbody>' + (rows || '<tr><td colspan="5">Brak zakończonych cykli.</td></tr>') + '</tbody></table></div></section>';
+      '';
   }
   async function notifications({api, escapeHtml:esc, formatDate:date}) {
     const data = await api("/api/boiler/notifications");

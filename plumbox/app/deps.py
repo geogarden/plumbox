@@ -56,7 +56,7 @@ class WebSocketHub:
         failed: list[WebSocket] = []
         for client, session_token in clients:
             try:
-                if not hasattr(state, "user_sessions") or not state.user_sessions.get(session_token):
+                if passwordless_panel_user() is None and (not hasattr(state, "user_sessions") or not state.user_sessions.get(session_token)):
                     await client.close(code=1008)
                     failed.append(client)
                     continue
@@ -92,11 +92,24 @@ async def snapshot_callback(snapshot: dict[str, Any]) -> None:
     await state.mqtt.publish(snapshot)
 
 
+def passwordless_panel_user() -> dict[str, Any] | None:
+    """Panel access is open; writes and administrative access still require PIN."""
+    config = getattr(state, "config", None)
+    security = getattr(config, "security", None)
+    if security is None or getattr(security, "login_required", True):
+        return None
+    return {"username": "panel", "display_name": "Panel", "role": "admin", "enabled": True, "passwordless": True}
+
+
 def current_user_from_request(request: Request) -> dict[str, Any] | None:
+    if passwordless_panel_user() is not None:
+        return passwordless_panel_user()
     return state.user_sessions.get(request.cookies.get(SESSION_COOKIE)) if hasattr(state, "user_sessions") else None
 
 
 def current_user_from_websocket(websocket: WebSocket) -> dict[str, Any] | None:
+    if passwordless_panel_user() is not None:
+        return passwordless_panel_user()
     return state.user_sessions.get(websocket.cookies.get(SESSION_COOKIE)) if hasattr(state, "user_sessions") else None
 
 
@@ -109,6 +122,8 @@ def require_login_user(request: Request) -> dict[str, Any]:
 
 def require_admin_user(request: Request) -> dict[str, Any]:
     user = require_login_user(request)
+    if user.get("passwordless"):
+        return require_control_user(request, request.headers.get("X-Plumbox-Token"), roles={"admin"})
     if user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Wymagane konto administratora.")
     return user
@@ -126,7 +141,7 @@ def require_control_user(
     if str(user.get("role")) not in allowed:
         raise HTTPException(status_code=403, detail="To konto ma dostęp tylko do odczytu.")
 
-    if not state.config.security.require_pin_for_all_writes:
+    if not user.get("passwordless") and not state.config.security.require_pin_for_all_writes:
         return user
 
     session = state.sessions.get(token)

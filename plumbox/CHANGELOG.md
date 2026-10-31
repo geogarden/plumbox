@@ -1,3 +1,11 @@
+## 2.8.46
+
+- Panel otwiera się bez osobnego hasła PlumBox. Nastawy i administracja w trybie bez logowania nadal wymagają PIN-u; zapis nastaw zachowuje potwierdzenia i walidację.
+- Podsumowanie cykli kotła przeniesiono do Czasów pracy z bieżącym odświeżaniem.
+- Usunięto tabelę Ostatnie cykle i osobny wpis Statystyki cykli w menu. Dane historyczne pozostają w bazie.
+- Starsze konta i hasła pozostają zapisane, ale nie są potrzebne przy domyślnym wejściu do panelu. Opcjonalny security.login_required: true przywraca wcześniejsze logowanie.
+- Odświeżono zasoby WWW.
+
 ## 2.8.45
 
 - Stan podajnika na schemacie pokazuje trybik bez widocznego tekstu.

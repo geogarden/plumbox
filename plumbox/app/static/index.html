@@ -18,8 +18,8 @@
   <title>PlumBox</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=gptsol-77">
-  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-77">
+  <link rel="stylesheet" href="assets/styles.css?v=gptsol-78">
+  <link rel="stylesheet" href="assets/scheme.css?v=gptsol-78">
 </head>
 <body>
   <div class="app-shell">
@@ -55,7 +55,6 @@
 
         <div class="nav-group">Dane</div>
         <button class="nav-item" data-view="alarms"><span>△</span>Alarmy</button>
-        <button class="nav-item" data-view="statistics"><span>◷</span>Statystyki cykli</button>
         <button class="nav-item" data-view="history"><span>◫</span>Historia temperatur</button>
         <button class="nav-item" data-view="runtime"><span>◷</span>Czasy pracy</button>
         <button class="nav-item" data-view="all"><span>≡</span>Pełna lista</button>
@@ -66,12 +65,12 @@
         <button class="nav-item" data-view="communication"><span>⇄</span>Komunikacja i MQTT</button>
         <button class="nav-item" data-view="users"><span>♟</span>Użytkownicy</button>
         <button class="nav-item" data-view="account"><span>⚿</span>Moje konto / hasło</button>
-        <a class="nav-item" href="logout"><span>⏻</span>Wyloguj</a>
+        <a class="nav-item" id="logoutLink" href="logout"><span>⏻</span>Wyloguj</a>
       </nav>
 
       <div class="sidebar-footer">
         <button id="lockButton" class="lock-button">🔒 Odblokuj sterowanie</button>
-        <div class="sidebar-version">PlumBox v2.8.45</div>
+        <div class="sidebar-version">PlumBox v2.8.46</div>
       </div>
     </aside>
 
@@ -138,9 +137,9 @@
   </dialog>
 
   <div id="toastContainer" class="toast-container"></div>
-  <script src="assets/boiler_views.js?v=gptsol-77" defer></script>
-  <script src="assets/work_schedule.js?v=gptsol-77" defer></script>
-  <script src="assets/app.js?v=gptsol-77" defer></script>
+  <script src="assets/boiler_views.js?v=gptsol-78" defer></script>
+  <script src="assets/work_schedule.js?v=gptsol-78" defer></script>
+  <script src="assets/app.js?v=gptsol-78" defer></script>
 </body>
 </html>
 

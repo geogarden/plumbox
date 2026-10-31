@@ -37,3 +37,11 @@ Przy uruchamianiu wersji z repozytorium zatrzymaj lokalny PlumBox, żeby oba pro
 Po opublikowaniu nowego numeru wersji w `plumbox/config.yaml` odśwież sklep dodatków i otwórz zainstalowany **PlumBox**. Home Assistant powinien udostępnić przycisk **Aktualizuj**. Aktualizacje tej samej instalacji zachowują jej katalog danych.
 
 Kod znajduje się w folderze [plumbox](plumbox/). [Dokumentacja aplikacji](plumbox/DOCS.md) · [Historia zmian](plumbox/CHANGELOG.md).
+
+## Dostęp do panelu od 2.8.46
+
+Panel PlumBox otwiera się bez osobnego hasła. W Home Assistant nadal obowiązuje dostęp do samego HA. Kod PIN pozostaje wymagany do zapisu nastaw oraz dostępu administracyjnego (w tym konfiguracji komunikacji i MQTT). Zapis do sterownika nadal korzysta z dotychczasowej walidacji i potwierdzeń.
+
+Istniejące konta, hasła, historia i PIN nie są usuwane z danych dodatku. Ustawienie `security.login_required: true` w pliku `/data/config.yaml` przywraca wcześniejsze logowanie. Domyślnie opcja jest wyłączona; odtworzenie konfiguracji przez `apply_options_on_start` również ustawia ją na `false`. Przy włączonym porcie bezpośrednim panel otwiera się bez hasła również pod tym adresem.
+
+Podsumowanie cykli znajduje się w **Czasach pracy** i odświeża się automatycznie. Tabela **Ostatnie cykle** została usunięta z widoku; zapisane dane nie są kasowane.

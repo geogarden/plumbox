@@ -272,7 +272,7 @@ def test_cycles_endpoint_and_qr_removal(client):
     assert 'class="qr-box"' not in script
     assert 'class="card remote-card"' not in script
     html = client.get("/").text
-    assert 'data-view="statistics"' in html
+    assert 'data-view="statistics"' not in html
     assert 'data-view="notifications"' not in html
     assert "boiler_views.js" in html
 

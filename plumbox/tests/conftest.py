@@ -23,6 +23,7 @@ _CFG.write_text(
     "web:\n"
     "  title: PlumBox TEST\n"
     "security:\n"
+    "  login_required: true\n"
     '  pin: "1234"\n'
     "history:\n"
     f"  database_path: {str(_DB).replace(os.sep, '/')}\n"

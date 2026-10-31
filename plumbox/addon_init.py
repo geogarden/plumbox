@@ -63,6 +63,7 @@ def make_config(options: dict, preserved_pin_hash: str | None = None) -> dict:
     else:
         raise ValueError("PIN musi mieć co najmniej 4 znaki.")
     cfg["security"].update({
+        "login_required": False,
         "pin": None,
         "pin_hash": pin_hash,
         "session_hours": 12,

@@ -32,6 +32,7 @@ web:
   poll_interval_seconds: 1
 
 security:
+  login_required: false
   # Instalator zastąpi tę wartość bezpiecznym pin_hash.
   pin: null
   pin_hash:

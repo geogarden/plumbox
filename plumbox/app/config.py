@@ -35,6 +35,7 @@ class WebConfig:
 
 @dataclass(slots=True)
 class SecurityConfig:
+    login_required: bool = False
     pin: str | None = None
     pin_hash: str | None = None
     session_hours: int = 12

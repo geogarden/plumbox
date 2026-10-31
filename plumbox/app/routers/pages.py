@@ -15,6 +15,7 @@ from ..deps import (
     current_user_from_websocket,
     form_dict,
     state,
+    passwordless_panel_user,
 )
 from ..users import USERS_PATH, authenticate
 
@@ -48,12 +49,16 @@ async def service_worker() -> FileResponse:
 
 
 @router.get("/login", include_in_schema=False)
-async def login_page(error: str | None = None) -> HTMLResponse:
+async def login_page(error: str | None = None) -> Response:
+    if passwordless_panel_user() is not None:
+        return RedirectResponse(url="./", status_code=303)
     return login_response(error)
 
 
 @router.post("/login", include_in_schema=False)
 async def login_submit(request: Request) -> Response:
+    if passwordless_panel_user() is not None:
+        return RedirectResponse(url="./", status_code=303)
     data = await form_dict(request)
     username = data.get("username", "")
     key = client_key(request, username)
@@ -96,10 +101,10 @@ async def logout(request: Request) -> RedirectResponse:
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
     session_token = websocket.cookies.get(SESSION_COOKIE)
-    if not session_token or not current_user_from_websocket(websocket):
+    if not current_user_from_websocket(websocket):
         await websocket.close(code=1008)
         return
-    await state.hub.connect(websocket, session_token)
+    await state.hub.connect(websocket, session_token or "")
     try:
         await websocket.send_json(state.service.snapshot)
         while True:

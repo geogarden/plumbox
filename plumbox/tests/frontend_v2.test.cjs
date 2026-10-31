@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -392,3 +392,13 @@ test('feeder gear remains visible in all states and only confirmed work activate
  const css=fs.readFileSync(path.join(__dirname,'../app/static/scheme.css'),'utf8');
  assert(css.includes('@media(prefers-reduced-motion:reduce)'));
 });
+
+test('cycle summary retains readings without the recent cycles table',async()=>{
+ const html=await cycleViews().statistics({api:async()=>({current:null,last:{duration_seconds:16789},starts_today:1,starts_month:22,observed_today_seconds:16789,observed_month_seconds:262922,fresh:true,simulation:false}),escapeHtml:String,formatDate:String});
+ for(const label of ['Bieżący cykl','Rozpoczęcie','Ostatni cykl','Potwierdzone rozpalenia dzisiaj','Potwierdzone rozpalenia w miesiącu','Zaobserwowany czas cykli dzisiaj','Zaobserwowany czas cykli w miesiącu','4 h 39 min 49 s','73 h 2 min 2 s']) assert(html.includes(label),label);
+ assert(!html.includes('<table'));assert(!html.includes('Ostatnie cykle'));
+ const index=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
+ assert(!index.includes('data-view="statistics"'));
+ assert(source.includes('id="runtimeCyclesView"'));
+});
+
