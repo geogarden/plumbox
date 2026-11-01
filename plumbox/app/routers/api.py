@@ -256,12 +256,23 @@ async def history(
 
 
 @router.get("/power-runtime")
-async def power_runtime() -> dict[str, Any]:
+async def power_runtime(period: str = Query(default="48h", pattern="^(48h|month)$")) -> dict[str, Any]:
     now = datetime.now(timezone.utc)
-    return await state.database.power_runtime(
-        now - timedelta(hours=48), now,
-        max_age=2 * state.config.history.sample_interval_seconds,
-    )
+    since = now - timedelta(hours=48)
+    label = "OSTATNIE 48 h"
+    if period == "month":
+        try:
+            zone = ZoneInfo(str(getattr(state.config, "timezone", "Europe/Warsaw")))
+        except ZoneInfoNotFoundError:
+            zone = timezone.utc
+        local_now = now.astimezone(zone)
+        start = local_now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        since = start.astimezone(timezone.utc)
+        next_month = (start.replace(day=28) + timedelta(days=4)).replace(day=1)
+        last_day = next_month - timedelta(days=1)
+        label = f"01–{last_day.day:02d}.{start.month:02d}.{start.year}"
+    result = await state.database.power_runtime(since, now, max_age=2 * state.config.history.sample_interval_seconds)
+    return {**result, "period": period, "period_label": label}
 
 
 @router.get("/summary")

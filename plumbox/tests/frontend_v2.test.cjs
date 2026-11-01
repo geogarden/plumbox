@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary, hourlyChartTicks};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary, hourlyChartTicks, serviceHtml};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -169,7 +169,7 @@ test('H1/H2 cards show accumulated runtime instead of feeder settings',()=>{
   p.state.snapshot={values:{heating_target:75,heating_temp:67},parameters:{
     fuel_feeding_work_100:{value:4},fuel_feeding_work_50:{value:4},fuel_feeding_work_30:{value:5}
   }};
-  p.state.powerRuntime={seconds:{'100':90061,'50':3605,'30':0},covered_seconds:100000,unknown_work_seconds:12};
+  p.state.powerRuntime48={seconds:{'100':90061,'50':3605,'30':0},covered_seconds:100000,unknown_work_seconds:12};
   const html=p.hysteresisSummaryHtml();
   for(const text of ['25 h 1 min 1 s','1 h 0 min 5 s','0 h 0 min 0 s','ostatnie 48 godzin'])assert(html.includes(text),text);
   assert(!html.includes('<strong>4 s</strong>'));
@@ -217,16 +217,16 @@ test('temperature history chart and legend exclude the return series',async()=>{
 });
 
 
-test('runtime cards load persisted totals from API and refresh after 30 seconds',async()=>{
-  let calls=0;
-  const p=panel(async url=>{assert(String(url).endsWith('/api/power-runtime'));calls++;return json({seconds:{'100':calls*3600,'50':0,'30':0},covered_seconds:7200,unknown_work_seconds:0});});
-  p.state.snapshot={values:{heating_target:75},parameters:{}};
-  await p.loadPowerRuntime();
-  assert(p.hysteresisSummaryHtml().includes('1 h 0 min 0 s'));
-  await p.loadPowerRuntime();assert.equal(calls,1);
-  p.state.powerRuntimeLoadedAt=Date.now()-31000;
-  await p.loadPowerRuntime();assert.equal(calls,2);
-  assert(p.hysteresisSummaryHtml().includes('2 h 0 min 0 s'));
+test('runtime requests month and 48h separately and caches both for 30 seconds',async()=>{
+ const urls=[];let generation=1;
+ const p=panel(async url=>{urls.push(String(url));const month=String(url).endsWith('?period=month');return json({period_label:month?'01–30.11.2026':'OSTATNIE 48 h',seconds:{'100':generation*(month?7200:3600),'50':0,'30':0}})});
+ p.state.snapshot={values:{heating_target:75},parameters:{}};
+ await p.loadPowerRuntime();assert.equal(urls.length,2);assert(urls.some(u=>u.endsWith('?period=month')));
+ assert(p.powerRuntimeHtml().includes('2 h 0 min 0 s'));assert(p.powerRuntimeHtml().includes('01–30.11.2026'));
+ assert(p.hysteresisSummaryHtml().includes('1 h 0 min 0 s'));
+ await p.loadPowerRuntime();assert.equal(urls.length,2);
+ generation=2;p.state.powerRuntimeLoadedAt=Date.now()-31000;await p.loadPowerRuntime();assert.equal(urls.length,4);
+ assert(p.hysteresisSummaryHtml().includes('2 h 0 min 0 s'));
 });
 
 test('overview and detail runtime cards show only recorded values and correct shares',()=>{
@@ -257,7 +257,7 @@ test('simultaneous runtime loads share one request and a failed refresh clears s
   let release,calls=0;const pending=new Promise(resolve=>release=resolve);
   const p=panel(async()=>{calls++;await pending;return json({seconds:{'100':3600,'50':0,'30':0}});});
   const first=p.loadPowerRuntime(),second=p.loadPowerRuntime();release();await Promise.all([first,second]);
-  assert.equal(calls,1);assert.equal(p.state.powerRuntime.seconds['100'],3600);
+  assert.equal(calls,2);assert.equal(p.state.powerRuntime.seconds['100'],3600);
   const failed=panel(async()=>{throw new Error('offline');});
   failed.state.powerRuntime={seconds:{'100':3600,'50':0,'30':0}};await failed.loadPowerRuntime();
   assert.equal(failed.state.powerRuntime,null);assert.match(failed.powerRuntimeHtml(),/Brak zapisanych danych/);
@@ -455,4 +455,16 @@ test('sidebar collapse restores saved preference and keeps accessible labels',()
  click();assert.equal(collapsed,false);assert.equal(attrs['aria-expanded'],'true');assert.equal(store.get('plumbox-sidebar-collapsed'),'0');assert.equal(resizes,1);
  const html=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
  assert(html.includes('id="sidebarToggle"'));assert(html.includes('title="Historia temperatur" aria-label="Historia temperatur"'));
+});
+
+
+test('service tabs group all six sections behind a single sidebar entry',()=>{
+ const p=panel();
+ for(const key of ['fuel_calibration','kindling','supervision','burning_off','cleaning','protections']){
+  p.state.serviceSection=key;assert(p.serviceHtml().includes('data-service-section="'+key+'" class="active"'));
+ }
+ const html=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
+ assert.equal((html.match(/data-view="service"/g)||[]).length,1);assert(!html.includes('data-view="audit"'));
+ for(const key of ['fuel_calibration','kindling','supervision','burning_off','cleaning','protections'])assert(!html.includes('data-view="'+key+'"'));
+ assert(html.includes('assets/lazar-logo.svg'));
 });

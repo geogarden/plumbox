@@ -992,3 +992,7 @@ td strong { color: var(--text-strong); }
 .sidebar-collapsed .nav-item {justify-content:center;min-height:40px;padding:10px}
 }
 @media(max-width:1024px){.sidebar-toggle{display:none}}
+
+.brand {gap:9px;flex-wrap:wrap}.brand-logo {width:86px;height:34px;filter:none}.brand-name {font-size:21px}.brand-model {font-size:10px}
+.service-tabs {display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}.service-tabs button {padding:11px 16px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--text)}.service-tabs button.active {color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+@media(min-width:1025px){.app-shell.sidebar-collapsed{grid-template-columns:86px minmax(0,1fr)}.sidebar-collapsed .nav-item{min-height:51px;padding:10px}.sidebar-collapsed .nav-item > span:first-child{width:32px;font-size:27px;line-height:1.15}.sidebar-collapsed .brand-logo{width:64px;height:30px}}

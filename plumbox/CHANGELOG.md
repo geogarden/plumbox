@@ -1,3 +1,11 @@
+## 2.8.50
+
+- Sześć sekcji serwisowych połączono w jedną pozycję SERWIS z zakładkami wewnątrz.
+- Usunięto Dziennik zmian z menu; zapis dziennika pozostaje dostępny dla aplikacji.
+- Czasy pracy w podglądzie i szczegółach obejmują bieżący miesiąc kalendarzowy, od północy pierwszego dnia w skonfigurowanej strefie czasu do teraz. H1/H2 zachowuje ostatnie 48 godzin.
+- Przyciemniono temperaturę zewnętrzną, powiększono ikony zwiniętego menu i zastąpiono płomień graficznym napisem LAZAR.
+- Odświeżono zasoby WWW.
+
 ## 2.8.49
 
 - Menu boczne na komputerze można zwinąć do ikon; wybór jest zapamiętywany lokalnie. Ikony zachowują nazwy dostępności i podpowiedzi.

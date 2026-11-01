@@ -6,6 +6,8 @@
     catalog: null,
     publicConfig: null,
     activeView: "overview",
+    serviceSection: "fuel_calibration",
+    powerRuntime48: null,
     token: localStorage.getItem("plumbox_token") || "",
     unlocked: false,
     websocket: null,
@@ -66,6 +68,7 @@
     users: "UŻYTKOWNICY",
     account: "MOJE KONTO",
     overview: "PODGLĄD KOTŁA",
+    service: "SERWIS",
     installation: "SCHEMAT INSTALACJI",
     heating: "CO I KOCIOŁ",
     work_schedule: "HARMONOGRAM PRACY KOTŁA",
@@ -525,8 +528,8 @@
     if (state.powerRuntimeInFlight) return state.powerRuntimeInFlight;
     if (Date.now() - state.powerRuntimeLoadedAt < 30000) return;
     state.powerRuntimeInFlight = (async () => {
-      try { state.powerRuntime = await api("/api/power-runtime"); }
-      catch { state.powerRuntime = null; }
+      try { [state.powerRuntime, state.powerRuntime48] = await Promise.all([api("/api/power-runtime?period=month"), api("/api/power-runtime")]); }
+      catch { state.powerRuntime = null; state.powerRuntime48 = null; }
       finally { state.powerRuntimeLoadedAt = Date.now(); }
     })();
     try { await state.powerRuntimeInFlight; }
@@ -549,7 +552,7 @@
     const bars = known && total > 0 ? items.map(([, color], index) =>
       `<span class="runtime-bar-${color}" style="width:${values[index] / total * 100}%"></span>`).join("") : "";
     return `<article class="card runtime-panel ${detail ? "runtime-panel-detail" : ""}">
-      <div class="runtime-heading"><div class="panel-title">CZASY PRACY</div><span>OSTATNIE 48 h</span></div>
+      <div class="runtime-heading"><div class="panel-title">CZASY PRACY</div><span>${escapeHtml(runtime?.period_label || "BIEŻĄCY MIESIĄC")}</span></div>
       <div class="runtime-values">${items.map(([label, color], index) => {
         const share = known && total > 0 ? `${Math.round(values[index] / total * 100)}% czasu pracy` : "—";
         return `<div class="runtime-item"><div class="runtime-label"><i class="runtime-dot runtime-bar-${color}"></i>${label}</div><strong>${escapeHtml(formatRuntime(values[index]))}</strong><small>${escapeHtml(share)}</small></div>`;
@@ -599,7 +602,7 @@
     const h1Threshold = target - h1;
     const restartThreshold = target - restartHysteresis;
 
-    const runtime = state.powerRuntime;
+    const runtime = state.powerRuntime48;
     const totals = runtime?.seconds;
     const workMax = formatRuntime(totals?.["100"]);
     const workMid = formatRuntime(totals?.["50"]);
@@ -986,12 +989,18 @@
     return `<article class="parameter-card" data-risk="${escapeHtml(parameter.risk)}" data-access="${escapeHtml(parameter.access || "service")}" data-param-scope="${escapeHtml(parameter.scope)}" data-param-index="${escapeHtml(parameter.index)}" data-param-name="${escapeHtml(parameter.name)}"><div class="parameter-top"><div class="parameter-title">${escapeHtml(parameter.label)}</div><span class="risk-tag ${escapeHtml(badgeClass)}">${badge}</span></div><div class="parameter-current">${escapeHtml(parameterValueLabel(parameter))}</div><div class="range-note">${escapeHtml(parameterRangeLabel(parameter))}</div>${editorHtml(parameter)}</article>`;
   }
 
+  const serviceSections = [["fuel_calibration","PRACA"],["kindling","Rozpalanie"],["supervision","Nadzór"],["burning_off","Wygaszanie"],["cleaning","Czyszczenie"],["protections","Zabezpieczenia"]];
+  function serviceHtml() {
+    const selected = state.serviceSection;
+    return `<div class="service-tabs" role="group" aria-label="Sekcje serwisowe">${serviceSections.map(([key,label]) => `<button data-service-section="${key}" class="${selected === key ? "active" : ""}" aria-pressed="${selected === key}">${label}</button>`).join("")}</div>` + (filteredViews[selected] ? filteredHtml(selected) : sectionHtml(selected));
+  }
+
   function sectionHtml(section, parameters = null, intro = "") {
     const items = parameters || parametersForSection(section);
     const sectionMeta = state.catalog?.sections?.find((item) => item.id === section);
     const advanced = ["kindling", "supervision", "burning_off", "cleaning", "protections"].includes(section);
     if (!items.length) return `<div class="empty-state">Sterownik nie udostępnił parametrów tej sekcji.</div>`;
-    return `<div class="section-head"><h2>${escapeHtml(sectionMeta?.label || titles[state.activeView] || section)}</h2><p>${items.length} parametrów wykrytych bezpośrednio w regulatorze.</p></div>${intro}${advanced ? `<div class="warning-strip ${section === "protections" ? "critical" : ""}">Zmiany w tej sekcji wpływają na proces spalania lub zabezpieczenia. Porównaj bieżące wartości z panelem kotła.</div>` : ""}${!state.unlocked ? `<div class="warning-strip">Sterowanie jest zablokowane. Podaj PIN, aby zapisywać wartości.</div>` : ""}<div class="parameters-grid">${items.map(parameterCard).join("")}</div>`;
+    return `<div class="section-head"><h2>${escapeHtml(sectionMeta?.label || titles[section] || titles[state.activeView] || section)}</h2><p>${items.length} parametrów wykrytych bezpośrednio w regulatorze.</p></div>${intro}${advanced ? `<div class="warning-strip ${section === "protections" ? "critical" : ""}">Zmiany w tej sekcji wpływają na proces spalania lub zabezpieczenia. Porównaj bieżące wartości z panelem kotła.</div>` : ""}${!state.unlocked ? `<div class="warning-strip">Sterowanie jest zablokowane. Podaj PIN, aby zapisywać wartości.</div>` : ""}<div class="parameters-grid">${items.map(parameterCard).join("")}</div>`;
   }
 
   function filteredHtml(view) {
@@ -1151,6 +1160,8 @@
       const target = event.target instanceof Element ? event.target : event.target?.parentElement;
       if (!target) return;
 
+      const serviceButton = target.closest("[data-service-section]");
+      if (serviceButton) { state.serviceSection = serviceButton.dataset.serviceSection; render(); return; }
       const stepButton = target.closest("[data-step-parameter]");
       if (stepButton && content.contains(stepButton)) {
         const input = $(`input-${stepButton.dataset.stepParameter}`);
@@ -1677,6 +1688,7 @@
       render();
       return;
     }
+    if (state.activeView === "service") { morphChildren(content, serviceHtml()); return; }
     if (!liveParameterViews.has(state.activeView)) return;
     // Mieszacz potrafi chwilowo zniknąć z pojedynczej ramki PyPlumIO podczas
     // odświeżenia/reconnectu. Jeżeli karty są już widoczne, nie zastępujemy ich
@@ -1746,6 +1758,7 @@
         restoreInstallationScroll(scrollPositions);
       });
     }
+    else if (state.activeView === "service") content.innerHTML = serviceHtml();
     else if (["heating","water_heater","summer","mixer","kindling","supervision","burning_off","cleaning","protections"].includes(state.activeView)) content.innerHTML = sectionHtml(state.activeView);
     else if (filteredViews[state.activeView]) {
       const view = state.activeView;
@@ -1804,6 +1817,7 @@
   }
 
   function switchView(view) {
+    if (serviceSections.some(([key]) => key === view)) { state.serviceSection = view; view = "service"; }
     if (state.activeView === "work_schedule" && view !== "work_schedule" && !window.PlumBoxWorkSchedule.canLeave()) return;
     state.activeView = view;
     document.querySelectorAll("[data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
