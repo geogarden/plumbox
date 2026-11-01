@@ -35,7 +35,7 @@ function panel(fetchImpl, fastTimers = false) {
     setTimeout:fastTimers ? (fn,ms)=>setTimeout(fn,Math.min(ms,30)) : setTimeout,clearTimeout,setInterval,clearInterval,
   };
   vm.createContext(context);
-  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary, hourlyChartTicks, serviceHtml};';
+  const exported = '  render = async () => {}; drawMainHistoryChart = () => {}; drawOverviewHistoryChart = () => {}; renderOverviewAlarms = () => {}; toast = () => {};\n  globalThis.panel = {state, api, fetchSnapshot, checkAuth, recoverAfterAppResume, updateLockButton, loadInitialDataWithRetry, executeWrite, schemeBurnerState, installationSchemeHtml, hysteresisSummaryHtml, loadPowerRuntime, powerRuntimeHtml, paintLineChart, sectionHtml, overviewHtml, sparklineSvg, appendOverviewTemperatureSample, loadOverviewExtras, editorHtml, historyHtml, chartSeries, loadCycleSummary, hourlyChartTicks, serviceHtml, filteredHtml};';
   assert(source.includes('  init();'));
   vm.runInContext(source.replace('  init();', exported), context);
   context.panel.state.uiReady=true;
@@ -467,4 +467,15 @@ test('service tabs group all six sections behind a single sidebar entry',()=>{
  assert.equal((html.match(/data-view="service"/g)||[]).length,1);assert(!html.includes('data-view="audit"'));
  for(const key of ['fuel_calibration','kindling','supervision','burning_off','cleaning','protections'])assert(!html.includes('data-view="'+key+'"'));
  assert(html.includes('src="assets/icon.svg" alt="HKS"'));
+});
+
+
+test('airflow view pairs feed-time corrections with airflow and omits unavailable parameters',()=>{
+ const p=panel();p.state.activeView='airflow';p.state.snapshot={parameters:{}};
+ const names=['airflow_correction_100','feeder_correction_100','airflow_correction_50','feeder_correction_50','airflow_correction_30','feeder_correction_30'];
+ for(const name of names)p.state.snapshot.parameters[name]={name,label:name,scope:'ecomax',section:'power',index:0,value:100,min:80,max:130,step:1,kind:'number',risk:'advanced',writable:true};
+ const html=p.filteredHtml('airflow');let last=-1;
+ for(const name of names){const at=html.indexOf('data-param-name="'+name+'"');assert(at>last,name);last=at}
+ delete p.state.snapshot.parameters.feeder_correction_50;
+ assert(!p.filteredHtml('airflow').includes('data-param-name="feeder_correction_50"'));
 });

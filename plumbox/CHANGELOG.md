@@ -1,3 +1,9 @@
+## 2.8.52
+
+- W Korektach nadmuchu i pelletu dodano korekty czasu podawania pelletu dla mocy MAX, średniej i minimalnej, obok korekt nadmuchu dla tych samych poziomów.
+- Pola są wyświetlane wyłącznie po udostępnieniu parametrów przez regulator. Zachowano natywne wartości i zakresy; zapis wymaga PIN-u oraz potwierdzenia.
+- Odświeżono pamięć podręczną zasobów WWW.
+
 ## 2.8.51
 
 - Zastąpiono napis LAZAR ikoną HKS z przesłanego pliku, z przezroczystym tłem i zachowanymi białymi literami.

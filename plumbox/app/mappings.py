@@ -329,6 +329,25 @@ PARAMETER_META: dict[str, dict[str, Any]] = {
         "risk": "advanced",
     },
 
+    "feeder_correction_100": {
+        "label": "Korekta czasu podawania pelletu — MAX (100%)",
+        "section": "power",
+        "risk": "advanced",
+        "unit": "%",
+    },
+    "feeder_correction_50": {
+        "label": "Korekta czasu podawania pelletu — ŚREDNIA (50%)",
+        "section": "power",
+        "risk": "advanced",
+        "unit": "%",
+    },
+    "feeder_correction_30": {
+        "label": "Korekta czasu podawania pelletu — MINIMALNA (30%)",
+        "section": "power",
+        "risk": "advanced",
+        "unit": "%",
+    },
+
     # Rozpalanie.
     "kindling_airflow_power": {
         "label": "Moc nadmuchu w trybie rozpalanie",

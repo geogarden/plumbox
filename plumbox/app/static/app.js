@@ -78,7 +78,7 @@
     fuel_calibration: "PRACA",
     boiler_powers: "MOCE 100/50/30%",
     hysteresis: "H1 / H2 I HISTEREZA",
-    airflow: "KOREKTY NADMUCHU",
+    airflow: "KOREKTY NADMUCHU I PELLETU",
     kindling: "ROZPALANIE I STABILIZACJA",
     supervision: "NADZÓR",
     burning_off: "WYGASZANIE",
@@ -98,7 +98,7 @@
     fuel_calibration: ["min_fan_power", "max_fuel_flow", "fuel_calorific_value", "fuel_detection_time"],
     boiler_powers: ["boiler_power_100", "boiler_power_50", "boiler_power_30"],
     hysteresis: ["h1_hysteresis", "h2_hysteresis", "heating_hysteresis"],
-    airflow: ["airflow_correction_100", "airflow_correction_50", "airflow_correction_30"],
+    airflow: ["airflow_correction_100", "feeder_correction_100", "airflow_correction_50", "feeder_correction_50", "airflow_correction_30", "feeder_correction_30"],
   };
   const liveParameterViews = new Set([
     "heating", "water_heater", "summer", "mixer", "kindling", "supervision",
