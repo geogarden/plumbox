@@ -466,5 +466,5 @@ test('service tabs group all six sections behind a single sidebar entry',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../app/static/index.html'),'utf8');
  assert.equal((html.match(/data-view="service"/g)||[]).length,1);assert(!html.includes('data-view="audit"'));
  for(const key of ['fuel_calibration','kindling','supervision','burning_off','cleaning','protections'])assert(!html.includes('data-view="'+key+'"'));
- assert(html.includes('assets/lazar-logo.svg'));
+ assert(html.includes('src="assets/icon.svg" alt="HKS"'));
 });

@@ -1,3 +1,9 @@
+## 2.8.51
+
+- Zastąpiono napis LAZAR ikoną HKS z przesłanego pliku, z przezroczystym tłem i zachowanymi białymi literami.
+- Dodano ikonę do karty przeglądarki, aplikacji WWW (192 i 512 px), ekranu iOS i dodatku HA.
+- Zachowano proporcje ikony w rozwiniętym i zwiniętym menu oraz odświeżono pamięć podręczną.
+
 ## 2.8.50
 
 - Sześć sekcji serwisowych połączono w jedną pozycję SERWIS z zakładkami wewnątrz.
